@@ -1,43 +1,76 @@
 <template>
   <div class="group_pool">
-    <uk-flex center-h class="group_pool_header">
+    <uk-flex
+      center-h
+      class="group_pool_header"
+    >
       <h3>Group Pool</h3>
       <uk-spacer />
-      <uk-button @click="displayGroupPopup" icon="new" style="margin-right: 8px" label="new" />
+      <uk-button
+        icon="new"
+        style="margin-right: 8px"
+        label="new"
+        @click="displayGroupPopup"
+      />
     </uk-flex>
-    <uk-flex class="group_pool_body" resizable>
-      <div tabindex="0" @focus="handleFocus(true)" @focusout="handleFocus(false)" :class="{ expand }" class="group_pool_groups">
+    <uk-flex
+      class="group_pool_body"
+      resizable
+    >
+      <div
+        tabindex="0"
+        :class="{ expand }"
+        class="group_pool_groups"
+        @focus="handleFocus(true)"
+        @focusout="handleFocus(false)"
+      >
         <uk-cue-container
-          @poolsize="updatePoolSize"
-          @scrolled="updateScroll"
+          v-for="(group, index) in groups"
+          :key="index"
           :scroll-to="scrollValue"
           :poolsize="poolsize"
-          @click="select(index)"
-          v-for="(group, index) in groups"
           :group="group"
-          :key="index"
+          @poolsize="updatePoolSize"
+          @scrolled="updateScroll"
+          @click="select(index)"
         />
       </div>
       <uk-spacer />
-      <uk-cue-container @scrolled="updateScroll" class="group_pool_master" :scroll-to="scrollValue" :poolsize="poolsize" master />
+      <uk-cue-container
+        class="group_pool_master"
+        :scroll-to="scrollValue"
+        :poolsize="poolsize"
+        master
+        @scrolled="updateScroll"
+      />
     </uk-flex>
     <group-popup v-model="groupPopupDisplayState" />
-    <uk-popup :header="{ title: 'Delete Group' }" @submit="deleteGroup" v-model="deletePopupDsiplayState">
-      <uk-flex col style="max-width: 350px">
-        <p style="padding: 16px">The group will be permanently removed from your project. Do you wish to continue ?</p>
+    <uk-popup
+      v-model="deletePopupDsiplayState"
+      :header="{ title: 'Delete Group' }"
+      @submit="deleteGroup"
+    >
+      <uk-flex
+        col
+        style="max-width: 350px"
+      >
+        <p style="padding: 16px">
+          The group will be permanently removed from your project. Do you wish to continue ?
+        </p>
       </uk-flex>
     </uk-popup>
   </div>
 </template>
 
 <script>
-import GroupPopup from "./_popups/popup.group.vue";
-//Dirty trick but it should do for now.
-import EventBus from "@/plugins/eventbus";
+import EventBus from '@/plugins/eventbus';
+import GroupPopup from './_popups/popup.group.vue';
+// Dirty trick but it should do for now.
+
 const DEFAULT_POOL_SIZE = 10;
 
 export default {
-  name: "groupPoolFragment",
+  name: 'GroupPoolFragment',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,
@@ -85,6 +118,16 @@ export default {
       expand: false,
     };
   },
+  mounted() {
+    this.groups = this.$show.groupPool.groups;
+    // Dirty trick but it should do for now.
+    // EventBus.on("visualizer_visibility", (visibility) => {
+    //   this.expand = !visibility;
+    // });
+    EventBus.on('show_loaded', () => {
+      this.pool = this.$show.groupPool;
+    });
+  },
   methods: {
     /**
      * Selects a group from the pool
@@ -114,7 +157,7 @@ export default {
       this.deletePopupDsiplayState = false;
       if (this.selectedGroup) {
         this.pool.delete(this.selectedGroup);
-        //Forcing pool update. It's a bit sparse but it works
+        // Forcing pool update. It's a bit sparse but it works
         this.groups = [];
         this.groups.splice();
         this.$nextTick(() => {
@@ -148,9 +191,9 @@ export default {
      * @param {Bool} state focus state
      */
     handleFocus(state) {
-      window.removeEventListener("keydown", this.keydownHandler);
+      window.removeEventListener('keydown', this.keydownHandler);
       if (state) {
-        window.addEventListener("keydown", this.keydownHandler);
+        window.addEventListener('keydown', this.keydownHandler);
       }
     },
     /**
@@ -160,23 +203,13 @@ export default {
      * @param {Object} e keydown event
      */
     keydownHandler(e) {
-      const key = e.key;
-      if (key === "Backspace" || key === "Delete") {
+      const { key } = e;
+      if (key === 'Backspace' || key === 'Delete') {
         if (this.selectedGroup && this.$route.params.chaseId == null) {
           this.deletePopupDsiplayState = true;
         }
       }
     },
-  },
-  mounted() {
-    this.groups = this.$show.groupPool.groups;
-    //Dirty trick but it should do for now.
-    // EventBus.on("visualizer_visibility", (visibility) => {
-    //   this.expand = !visibility;
-    // });
-    EventBus.on("show_loaded", () => {
-      this.pool = this.$show.groupPool;
-    });
   },
 };
 </script>

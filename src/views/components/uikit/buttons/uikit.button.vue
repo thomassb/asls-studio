@@ -1,6 +1,15 @@
 <template>
-  <uk-flex @click="handleClick" class="uikit_button" :style="{background: toggled && color ? color : 'var(--secondary-dark)' }" :class="{ disabled, toggled, toggleable, square }">
-    <uk-icon class="uikit_button_icon" v-if="icon" :name="icon"/>
+  <uk-flex
+    class="uikit_button"
+    :style="{background: toggled && color ? color : 'var(--secondary-dark)' }"
+    :class="{ disabled, toggled, toggleable, square }"
+    @click="handleClick"
+  >
+    <uk-icon
+      v-if="icon"
+      class="uikit_button_icon"
+      :name="icon"
+    />
     <h4>{{ label }}</h4>
   </uk-flex>
 </template>
@@ -15,12 +24,11 @@
  * @story Icon {"label":"Icon", "toggleable": true, "value": false, "icon":"new"}
  */
 export default {
-  name: "ukButton",
+  name: 'UkButton',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,
   },
-  emits: ['update:modelValue','click'],
   props: {
     /**
      * Text to be displayed in the button.
@@ -47,13 +55,14 @@ export default {
      */
     color: {
       type: String,
-      default: '#4786B4'
+      default: '#4786B4',
     },
     /**
      * uikit-icon name to preceed the button's label.
      */
-    icon: String
+    icon: String,
   },
+  emits: ['update:modelValue', 'click'],
   data() {
     return {
       /**
@@ -62,13 +71,13 @@ export default {
       toggled: this.toggleable ? this.value : false,
     };
   },
-  methods:{
+  methods: {
     /**
      * Handle button click.
-     * 
+     *
        */
-    handleClick(){
-      if(this.toggleable){
+    handleClick() {
+      if (this.toggleable) {
         this.toggled = !this.toggled;
       }
       /**
@@ -78,8 +87,8 @@ export default {
        */
       this.$emit('click', this.toggled);
       this.$emit('update:modelValue', this.toggled);
-    }
-  }
+    },
+  },
 };
 </script>
 

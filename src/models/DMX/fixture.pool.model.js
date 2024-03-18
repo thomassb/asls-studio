@@ -1,6 +1,5 @@
-'use strict'
-import {Proxify} from '../utils/proxify.utils';
-import Fixture from './fixture.model'
+import { Proxify } from '../utils/proxify.utils';
+import Fixture from './fixture.model';
 
 /**
  * @class FixturePool
@@ -10,7 +9,6 @@ import Fixture from './fixture.model'
  * as many of the pools mostly implement the same functionalities.
  */
 class FixturePool extends Proxify {
-
   constructor() {
     super();
     this.fixtures = [];
@@ -26,15 +24,13 @@ class FixturePool extends Proxify {
    * @type {Array}
    */
   get listable() {
-    return this.fixtures.map(fixture => {
-      return {
-        name: fixture.name,
-        icon: 'movinghead',
-        id: fixture.id,
-        universe: fixture.universe,
-        more: `U${fixture.universe} - CH${fixture.chStart}`
-      }
-    })
+    return this.fixtures.map((fixture) => ({
+      name: fixture.name,
+      icon: 'movinghead',
+      id: fixture.id,
+      universe: fixture.universe,
+      more: `U${fixture.universe} - CH${fixture.chStart}`,
+    }));
   }
 
   /**
@@ -43,8 +39,8 @@ class FixturePool extends Proxify {
    * @readonly
    * @type {Object}
    */
-  get showData(){
-    return this.fixtures.map(f => f.showData)
+  get showData() {
+    return this.fixtures.map((f) => f.showData);
   }
 
   /**
@@ -52,18 +48,17 @@ class FixturePool extends Proxify {
    *
    * @public
    * @param {Number} id
-   * @return {Object} Fixture instance 
+   * @return {Object} Fixture instance
    */
   getFromId(id) {
-    let fixture = this.fixtures.find(fixture => fixture.id == id);
+    const fixture = this.fixtures.find((fixture) => fixture.id == id);
     if (fixture) {
       return fixture;
-    } else {
-      throw {
-        errcode: -10,
-        msg: "Cannot find fixture in pool"
-      }
     }
+    throw {
+      errcode: -10,
+      msg: 'Cannot find fixture in pool',
+    };
   }
 
   /**
@@ -73,12 +68,12 @@ class FixturePool extends Proxify {
    * @param {Number} id
    * @return {Boolean} whether a fixture exists in the pool or not
    */
-  checkIfExists(id){
-    try{
+  checkIfExists(id) {
+    try {
       this.getFromId(id);
       return true;
-    }catch{
-      return false
+    } catch {
+      return false;
     }
   }
 
@@ -97,17 +92,17 @@ class FixturePool extends Proxify {
    *
    * @public
    * @param {Object} chaseData fixture configuration object
-   * @return {Object} Fixture instance 
+   * @return {Object} Fixture instance
    * @see Fixture
    */
   addRaw(fixtureData) {
-    let fixture = new Fixture(fixtureData)
+    const fixture = new Fixture(fixtureData);
     fixture.id = this.genFixtureId();
     this.fixtures.pushAndStackUndo(fixture);
     return fixture;
   }
 
-  moveItem(originalIndex, finalIndex){
+  moveItem(originalIndex, finalIndex) {
     this.fixtures.splice(finalIndex, 0, this.fixtures.splice(originalIndex, 1)[0]);
   }
 
@@ -118,22 +113,22 @@ class FixturePool extends Proxify {
    * @param {Object} fixture fixture instance handle
    */
   delete(fixture, destroy = false) {
-    let index = this.fixtures.findIndex(item => item.id == fixture.id);
+    const index = this.fixtures.findIndex((item) => item.id == fixture.id);
     if (index > -1) {
       this.fixtures[index].highlight(false, true);
-      this.fixtures.spliceAndStackUndo(index, 1)
+      this.fixtures.spliceAndStackUndo(index, 1);
       if (destroy) {
         Fixture.deleteInstance(fixture);
       }
     } else {
       throw {
         errcode: -12,
-        msg: "Could not find fixture in fixture pool"
-      }
+        msg: 'Could not find fixture in fixture pool',
+      };
     }
   }
 
-    /**
+  /**
    * Clears all fixture instances from pool
    *
    * @public
@@ -152,12 +147,11 @@ class FixturePool extends Proxify {
    */
   genFixtureId() {
     let id = this.fixtures.length ? this.fixtures[this.fixtures.length - 1].id + 1 : 0;
-    while (this.fixtures.find(fixture => fixture.id === id)) {
+    while (this.fixtures.find((fixture) => fixture.id === id)) {
       id++;
     }
     return id;
   }
-
 }
 
 export default FixturePool;

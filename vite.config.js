@@ -35,6 +35,9 @@ exec('git rev-parse --abbrev-ref HEAD', (err, stdout) => {
 
 export default defineConfig({
   plugins: [vue(), svgLoader()],
+  optimizeDeps: {
+    exclude: ['worker']
+  },
   resolve: {
     alias: {
       '@': path.resolve(pathSegments, './src'),

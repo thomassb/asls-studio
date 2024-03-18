@@ -1,29 +1,38 @@
 <template>
-  <div :class="{ docked, disabled }" class="widget">
+  <div
+    :class="{ docked, disabled }"
+    class="widget"
+  >
     <div class="header">
-      <uk-icon class="header_icon" v-if="header.icon" :name="header.icon" />
+      <uk-icon
+        v-if="header.icon"
+        class="header_icon"
+        :name="header.icon"
+      />
       <h3>{{ header.title }}</h3>
       <span style="flex: 1" />
-      <uk-button @click="action.callback" v-if="action" v-show="!docked" :label="action.text" :icon="action.icon" />
-      <uk-icon v-if="dockable" @click="docked = !disabled && !docked" class="widget_action" name="arrow_down" />
+      <uk-button
+        v-if="action"
+        v-show="!docked"
+        :label="action.text"
+        :icon="action.icon"
+        @click="action.callback"
+      />
+      <uk-icon
+        v-if="dockable"
+        class="widget_action"
+        name="arrow_down"
+        @click="docked = !disabled && !docked"
+      />
     </div>
-    <div v-show="!docked" class="body">
+    <div
+      v-show="!docked"
+      class="body"
+    >
       <slot />
     </div>
   </div>
 </template>
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: all 0.2s;
-  max-width: 230px;
-}
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-  max-width: 0px;
-}
-</style>
 <script>
 /**
  * @component Widget Widgets are used within modifiers in order to offer users with unique
@@ -34,7 +43,7 @@
  * @story Dockable {"header":{"title":"Default","icon":"grid"}, "dockable":true}
  */
 export default {
-  name: "ukWidget",
+  name: 'UkWidget',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,
@@ -47,7 +56,7 @@ export default {
     header: {
       type: Object,
       default: () => ({
-        title: "Unnamed Widget",
+        title: 'Unnamed Widget',
       }),
     },
     /**
@@ -81,6 +90,18 @@ export default {
   },
 };
 </script>
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.2s;
+  max-width: 230px;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+  max-width: 0px;
+}
+</style>
 
 <style scoped>
 .widget {

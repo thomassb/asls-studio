@@ -1,30 +1,31 @@
 <template>
-  <uk-flex :style="{background: color}" class="uikit_vumeter">
-
-  </uk-flex>
+  <uk-flex
+    :style="{background: color}"
+    class="uikit_vumeter"
+  />
 </template>
 
 <script>
 export default {
-  name: "ukVumeter",
+  name: 'UkVumeter',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,
   },
-  props:{
+  props: {
     value: Number,
-    color: String
+    color: String,
   },
   data() {
     return {
       content: this.value,
     };
   },
-  methods: {
+  watch: {
   },
   mounted() {
   },
-  watch: {
+  methods: {
   },
 };
 </script>

@@ -1,11 +1,31 @@
 <template>
-  <uk-widget :disabled="!pool.cues.length" class="widget_pool_timeline" :header="header">
-    <uk-flex col class="widget_pool_timeline_grid_wrapper">
+  <uk-widget
+    :disabled="!pool.cues.length"
+    class="widget_pool_timeline"
+    :header="header"
+  >
+    <uk-flex
+      col
+      class="widget_pool_timeline_grid_wrapper"
+    >
       <div class="widget_pool_timeline_fold_btn">
-        <uk-button style="width: 100%; height: 100%" square v-model="folded" toggleable label="fold cues" icon="hide" />
+        <uk-button
+          v-model="folded"
+          style="width: 100%; height: 100%"
+          square
+          toggleable
+          label="fold cues"
+          icon="hide"
+        />
       </div>
-      <uk-flex class="widget_pool_timeline_grid_wrapper" ref="scrollable">
-        <uk-flex col class="widget_pool_timeline_items">
+      <uk-flex
+        ref="scrollable"
+        class="widget_pool_timeline_grid_wrapper"
+      >
+        <uk-flex
+          col
+          class="widget_pool_timeline_items"
+        >
           <div
             v-for="(cueItemPool, cueIndex) in pool.cues"
             v-show="!folded || (folded && cueItemPool.items.length)"
@@ -14,15 +34,29 @@
             class="widget_pool_timeline_item"
             :class="{ even: !(cueIndex % 2) }"
           >
-            <uk-icon :name="cueItemPool.cue.type ? 'waveform' : 'mixer'" class="widget_pool_timeline_item_icon" />
-            <h4 class="widget_pool_timeline_item_text">{{ cueItemPool.name }}</h4>
+            <uk-icon
+              :name="cueItemPool.cue.type ? 'waveform' : 'mixer'"
+              class="widget_pool_timeline_item_icon"
+            />
+            <h4 class="widget_pool_timeline_item_text">
+              {{ cueItemPool.name }}
+            </h4>
           </div>
         </uk-flex>
         <div class="widget_pool_timeline_duration_floater">
-          <div class="widget_pool_timeline_duration_overflow_overlay" :style="computeDurationOverflowOverlayStyle()" />
-          <div class="widget_pool_timeline_cursor" :style="computeCursorStyle()" />
+          <div
+            class="widget_pool_timeline_duration_overflow_overlay"
+            :style="computeDurationOverflowOverlayStyle()"
+          />
+          <div
+            class="widget_pool_timeline_cursor"
+            :style="computeCursorStyle()"
+          />
         </div>
-        <uk-flex style="height: fit-content; min-height: 100%" col>
+        <uk-flex
+          style="height: fit-content; min-height: 100%"
+          col
+        >
           <uk-flex
             class="widget_pool_timeline_grid_label_wrapper"
             :style="computeRowStyle()"
@@ -32,48 +66,57 @@
           >
             <div
               class="widget_pool_timeline_grid_label"
+              :style="computeRowStyle()"
               @dblclick="resetZoom"
               @mousedown="startZoom"
               @mouseup="stopZoom"
-              :style="computeRowStyle()"
             />
             <div
-              :style="{ left: `${cellWidth * 16 * (bar - 1)}px` }"
-              class="widget_pool_timeline_grid_label_bar"
               v-for="bar in pool.actualDuration * 4"
               :key="bar"
+              :style="{ left: `${cellWidth * 16 * (bar - 1)}px` }"
+              class="widget_pool_timeline_grid_label_bar"
             >
               {{ Math.ceil((bar - 1 + 1) / 4) }}.{{ (bar - 1) % 4 }}
             </div>
           </uk-flex>
-          <uk-flex col ref="grid" style="flex: 1">
+          <uk-flex
+            ref="grid"
+            col
+            style="flex: 1"
+          >
             <!-- <div class="widget_pool_timeline_duration_overflow_overlay" :style="computeDurationOverflowOverlayStyle()" />
             <div class="widget_pool_timeline_cursor" :style="computeCursorStyle()" /> -->
             <uk-flex
-              @dblclick="(e) => addCueItem(e, cueItemPool)"
-              :style="computeRowStyle()"
-              class="widget_pool_timeline_grid_row"
               v-for="(cueItemPool, cueIndex) in pool.cues"
               v-show="!folded || (folded && cueItemPool.items.length)"
               :key="cueIndex"
+              :style="computeRowStyle()"
+              class="widget_pool_timeline_grid_row"
+              @dblclick="(e) => addCueItem(e, cueItemPool)"
             >
               <div style="width: 100%; position: relative; min-height: 1%">
                 <div
-                  @dblclick.stop
-                  :ref="`cue-${cueIndex}-${itemIndex}`"
                   v-for="(cueItem, itemIndex) in cueItemPool.items"
+                  :ref="`cue-${cueIndex}-${itemIndex}`"
                   :key="itemIndex"
                   class="widget_pool_timeline_item_cue"
                   :style="computeCueStyle(cueItem)"
+                  @dblclick.stop
                 >
                   <div
-                    @contextmenu.prevent="deleteCueItem(cueItemPool, cueItem)"
                     class="widget_pool_timeline_item_cue_body"
+                    @contextmenu.prevent="deleteCueItem(cueItemPool, cueItem)"
                     @mousedown="(e) => startDragCue(e, `cue-${cueIndex}-${itemIndex}`, cueItem, cueItemPool.items)"
                     @mouseup="(e) => stopDragCue(e, `cue-${cueIndex}-${itemIndex}`, cueItem, cueItemPool.items)"
                   >
-                    <uk-icon :name="cueItemPool.cue.type ? 'waveform' : 'mixer'" class="widget_pool_timeline_item_icon" />
-                    <h4 class="widget_pool_timeline_item_cue_text">{{ cueItem.name }}</h4>
+                    <uk-icon
+                      :name="cueItemPool.cue.type ? 'waveform' : 'mixer'"
+                      class="widget_pool_timeline_item_icon"
+                    />
+                    <h4 class="widget_pool_timeline_item_cue_text">
+                      {{ cueItem.name }}
+                    </h4>
                   </div>
                   <div
                     class="widget_pool_timeline_item_cue_resize"
@@ -95,7 +138,7 @@
  * @todo Document this
  */
 export default {
-  name: "chaseModifierWidgetpoolTimeline",
+  name: 'ChaseModifierWidgetpoolTimeline',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,
@@ -112,7 +155,7 @@ export default {
        * Widget header data
        */
       header: {
-        title: "Timeline",
+        title: 'Timeline',
       },
       /**
        * Zomming amount
@@ -144,6 +187,30 @@ export default {
       containerWidth: 0,
     };
   },
+  watch: {
+    'pool.duration': function () {
+      this.resetZoom();
+      this.computeRowStyle();
+    },
+    'pool.actualDuration': function () {
+      this.resetZoom();
+      this.computeRowStyle();
+    },
+    pool() {
+      this.$refs.scrollable.$el.scroll(0, 0);
+    },
+    folded() {
+      this.$refs.scrollable.$el.scroll(0, 0);
+    },
+  },
+  mounted() {
+    this.resetZoom();
+    this.computeRowStyle();
+    window.addEventListener('resize', () => {
+      this.resetZoom();
+      this.computeRowStyle();
+    });
+  },
   methods: {
     /**
      * Computes a cue item's position, width and color
@@ -167,7 +234,7 @@ export default {
      */
     computeRowStyle() {
       let minCellWidth = 10;
-      let cellWidth = minCellWidth + this.zoom * minCellWidth;
+      const cellWidth = minCellWidth + this.zoom * minCellWidth;
       let containerWidth = cellWidth * this.pool.barSubDiv * this.pool.actualDuration + 0;
       if (this.$el && containerWidth < this.$el.offsetWidth) {
         minCellWidth = (this.$el.offsetWidth - 0) / (this.pool.barSubDiv * this.pool.actualDuration);
@@ -198,7 +265,7 @@ export default {
      */
     computeCursorStyle() {
       return {
-        left: this.pool.elapsedPerc * (this.pool.duration * this.cellWidth * this.pool.barSubDiv) + 0 + "px",
+        left: `${this.pool.elapsedPerc * (this.pool.duration * this.cellWidth * this.pool.barSubDiv) + 0}px`,
       };
     },
     /**
@@ -230,11 +297,11 @@ export default {
       if (e.detail == 2) {
         this.resetZoom();
       }
-      this.$utils.setCapture(e.currentTarget, "row-resize");
+      this.$utils.setCapture(e.currentTarget, 'row-resize');
       this.moveStart = e.clientY;
       this.zoomStart = this.zoom;
-      window.addEventListener("mousemove", this.handleZoom);
-      window.addEventListener("mouseup", this.stopZoom);
+      window.addEventListener('mousemove', this.handleZoom);
+      window.addEventListener('mouseup', this.stopZoom);
     },
     /**
      * Handles zooming procedure
@@ -251,8 +318,8 @@ export default {
      * @public
      */
     stopZoom() {
-      window.removeEventListener("mousemove", this.handleZoom);
-      window.removeEventListener("mouseup", this.stopZoom);
+      window.removeEventListener('mousemove', this.handleZoom);
+      window.removeEventListener('mouseup', this.stopZoom);
     },
     /**
      * Deletes a cue item from the selected chase's cue item pool
@@ -272,15 +339,15 @@ export default {
      * @param {Object} cueItemPool handle to cue item pool
      */
     addCueItem(e, cueItemPool) {
-      let gridEl = this.$refs.grid.$el;
-      let gridElBox = gridEl.getBoundingClientRect();
-      let leftOffset = gridEl.scrollLeft - gridElBox.left;
-      let tick = Math.floor((e.clientX + leftOffset) / this.cellWidth);
+      const gridEl = this.$refs.grid.$el;
+      const gridElBox = gridEl.getBoundingClientRect();
+      const leftOffset = gridEl.scrollLeft - gridElBox.left;
+      const tick = Math.floor((e.clientX + leftOffset) / this.cellWidth);
       let tickDuration = cueItemPool.cue.duration * this.pool.barSubDiv;
       tickDuration = this.doesCollide(tick, tickDuration, cueItemPool.items);
       cueItemPool.addRaw({
         tickStart: tick,
-        tickDuration: tickDuration,
+        tickDuration,
         subDiv: this.pool.barSubDiv,
       });
     },
@@ -294,21 +361,21 @@ export default {
      * @param {Array} neighbours list of cue items adjacent to the cue item being resized (also contains reference to resized cue item)
      */
     startResizeCue(e, ref, handle, neighbours) {
-      this.$utils.setCapture(e.currentTarget, "col-resize");
-      let cueEl = this.$refs[ref][0];
+      this.$utils.setCapture(e.currentTarget, 'col-resize');
+      const cueEl = this.$refs[ref][0];
       if (cueEl) {
-        var ctx = {
+        const ctx = {
           el: cueEl,
           moveStart: e.clientX - cueEl.getBoundingClientRect().width,
           snapWidth: this.cellWidth,
           cue: handle,
-          neighbours: neighbours,
+          neighbours,
         };
         const resize = (e) => {
           this.resizeCue(e, ctx);
         };
-        window.addEventListener("mousemove", resize);
-        window.addEventListener("mouseup", () => window.removeEventListener("mousemove", resize));
+        window.addEventListener('mousemove', resize);
+        window.addEventListener('mouseup', () => window.removeEventListener('mousemove', resize));
       }
     },
     /**
@@ -324,8 +391,8 @@ export default {
      * @param {Object} ctx.neighbours list of cue items adjacent to the cue item being resized (also contains reference to resized cue item)
      */
     resizeCue(e, ctx) {
-      let moveOffset = e.clientX - ctx.moveStart;
-      let length = Math.floor(moveOffset / ctx.snapWidth);
+      const moveOffset = e.clientX - ctx.moveStart;
+      const length = Math.floor(moveOffset / ctx.snapWidth);
       ctx.cue.length = Math.max(this.computeCueResizeCollision(length, ctx.cue, ctx.neighbours) || length, 0);
     },
     /**
@@ -334,7 +401,7 @@ export default {
      * @public
      */
     stopResizeCue() {
-      window.removeEventListener("mousemove", this.resizeCue);
+      window.removeEventListener('mousemove', this.resizeCue);
     },
     /**
      * Cue dragging procedure initialisation
@@ -347,19 +414,19 @@ export default {
      */
     startDragCue(e, ref, handle, neighbours) {
       // this.$utils.setCapture(e.currentTarget, "grab");
-      let cueEl = this.$refs[ref][0];
-      var ctx = {
+      const cueEl = this.$refs[ref][0];
+      const ctx = {
         el: cueEl,
         startX: e.clientX - cueEl.offsetLeft,
         snapWidth: this.cellWidth,
         cue: handle,
-        neighbours: neighbours,
+        neighbours,
       };
       const drag = (e) => {
         this.dragCue(e, ctx);
       };
-      window.addEventListener("mousemove", drag);
-      window.addEventListener("mouseup", () => window.removeEventListener("mousemove", drag));
+      window.addEventListener('mousemove', drag);
+      window.addEventListener('mouseup', () => window.removeEventListener('mousemove', drag));
     },
     /**
      * Cue dragging procedure
@@ -375,7 +442,7 @@ export default {
      * @param {Object} ctx.neighbours list of cue items adjacent to the cue item being dragged (also contains reference to dragged cue item)
      */
     dragCue(e, ctx) {
-      let moveOffset = e.clientX - ctx.startX;
+      const moveOffset = e.clientX - ctx.startX;
       let tick = Math.floor(moveOffset / ctx.snapWidth);
       tick = Math.max(this.computeCuePositionCollision(tick, ctx.cue.length, ctx.cue, ctx.neighbours), 0);
       ctx.cue.tick = Math.max(this.computeCuePositionCollision(tick, ctx.cue.length, ctx.cue, ctx.neighbours) || tick, 0);
@@ -386,7 +453,7 @@ export default {
      * @public
      */
     stopDragCue() {
-      window.removeEventListener("mousemove", this.drag);
+      window.removeEventListener('mousemove', this.drag);
     },
     /**
      * Computes cue items position collisions recursively and returns currently available tick position.
@@ -400,9 +467,9 @@ export default {
      * @returns {Number} new cue item tick value
      */
     computeCuePositionCollision(tick, length, cue, neighbours) {
-      var collision = { tick: tick, length: length };
+      const collision = { tick, length };
       for (let i = 0; i < neighbours.length; i++) {
-        let neighbourCue = neighbours[i];
+        const neighbourCue = neighbours[i];
         if (neighbourCue != cue) {
           if (neighbourCue.tick < tick + cue.length && tick < neighbourCue.tick + neighbourCue.length) {
             collision.tick = collision.tick > neighbourCue.tick ? neighbourCue.length + neighbourCue.tick : neighbourCue.tick - length;
@@ -412,9 +479,8 @@ export default {
       }
       if (tick == collision.tick) {
         return tick;
-      } else {
-        return this.computeCuePositionCollision(collision.tick, collision.length, cue, neighbours);
       }
+      return this.computeCuePositionCollision(collision.tick, collision.length, cue, neighbours);
     },
     /**
      * Computes cue items position collisions recursively and returns currently available tick position.
@@ -427,7 +493,7 @@ export default {
      * @returns {Number} new cue item width value
      */
     computeCueResizeCollision(length, cue, neighbours) {
-      let max = Math.min(...neighbours.filter((nCue) => nCue.tick >= cue.tick + cue.length).map((c) => c.tick - cue.tick));
+      const max = Math.min(...neighbours.filter((nCue) => nCue.tick >= cue.tick + cue.length).map((c) => c.tick - cue.tick));
       return Math.min(length, max);
     },
     /**
@@ -441,36 +507,12 @@ export default {
      */
     doesCollide(tick, length, neighbours) {
       for (let i = 0; i < neighbours.length; i++) {
-        let neighbour = neighbours[i];
+        const neighbour = neighbours[i];
         if (neighbour.tick < tick + length && tick <= neighbour.tick + neighbour.length) {
           return neighbour.tick - tick;
         }
       }
       return length;
-    },
-  },
-  mounted() {
-    this.resetZoom();
-    this.computeRowStyle();
-    window.addEventListener("resize", () => {
-      this.resetZoom();
-      this.computeRowStyle();
-    });
-  },
-  watch: {
-    "pool.duration"() {
-      this.resetZoom();
-      this.computeRowStyle();
-    },
-    "pool.actualDuration"() {
-      this.resetZoom();
-      this.computeRowStyle();
-    },
-    pool() {
-      this.$refs.scrollable.$el.scroll(0, 0);
-    },
-    folded() {
-      this.$refs.scrollable.$el.scroll(0, 0);
     },
   },
 };

@@ -1,16 +1,33 @@
 <template>
-  <uk-popup @submit="addFixturesToGroup" :valid="selectedFixtures.length > 0" @input="update()" v-model="state" :header="headerData">
-    <uk-flex col class="group_patch_popup">
-      <uk-list class="fixture_list" :items="availableFixtures" colored toggleable filterable noHighlight @toggle="selectFixtures" />
+  <uk-popup
+    v-model="state"
+    :valid="selectedFixtures.length > 0"
+    :header="headerData"
+    @submit="addFixturesToGroup"
+    @input="update()"
+  >
+    <uk-flex
+      col
+      class="group_patch_popup"
+    >
+      <uk-list
+        class="fixture_list"
+        :items="availableFixtures"
+        colored
+        toggleable
+        filterable
+        no-highlight
+        @toggle="selectFixtures"
+      />
     </uk-flex>
   </uk-popup>
 </template>
 
 <script>
-import PopupMixin from "@/views/mixins/popup.mixin.js";
+import PopupMixin from '@/views/mixins/popup.mixin.js';
 
 export default {
-  name: "ukPopupGroupPatch",
+  name: 'UkPopupGroupPatch',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,
@@ -30,7 +47,7 @@ export default {
       /**
        * POpup header data
        */
-      headerData: { title: "Add Group Fixture" },
+      headerData: { title: 'Add Group Fixture' },
       /**
        * List of available fixtures
        */
@@ -40,6 +57,18 @@ export default {
        */
       selectedFixtures: [],
     };
+  },
+  watch: {
+    state(state) {
+      if (state) {
+        this.init();
+      } else {
+        this.deinit();
+      }
+    },
+  },
+  mounted() {
+    this.init();
   },
   methods: {
     /**
@@ -52,21 +81,19 @@ export default {
     init() {
       this.availableFixtures = [];
       this.selectedFixtures = [];
-      this.availableFixtures = this.$show.universePool.listable.map((universe) => {
-        return {
-          name: universe.name,
-          color: universe.color,
-          id: universe.id,
-          unfold: universe.unfold.flatMap((fixture) => {
-            try {
-              this.group.fixturePool.getFromId(fixture.id);
-              return Object.assign(fixture, { disabled: true });
-            } catch (err) {
-              return fixture;
-            }
-          }),
-        };
-      });
+      this.availableFixtures = this.$show.universePool.listable.map((universe) => ({
+        name: universe.name,
+        color: universe.color,
+        id: universe.id,
+        unfold: universe.unfold.flatMap((fixture) => {
+          try {
+            this.group.fixturePool.getFromId(fixture.id);
+            return Object.assign(fixture, { disabled: true });
+          } catch (err) {
+            return fixture;
+          }
+        }),
+      }));
     },
     /**
      * Deinit popup and environment. unselects and unhighlights all selected fixtures.
@@ -91,7 +118,7 @@ export default {
         this.selectedFixtures[0].highlightSingle(false, true);
       }
       this.selectedFixtures = fixtures.map((fixture, index) => {
-        let fxt = this.$show.fixturePool.getFromId(fixture.id);
+        const fxt = this.$show.fixturePool.getFromId(fixture.id);
         index ? fxt.highlight(true, true) : fxt.highlightSingle(true, true);
         return fxt;
       });
@@ -106,18 +133,6 @@ export default {
         this.group.addFixture(fixture);
       });
       this.close();
-    },
-  },
-  mounted() {
-    this.init();
-  },
-  watch: {
-    state(state) {
-      if (state) {
-        this.init();
-      } else {
-        this.deinit();
-      }
     },
   },
 };

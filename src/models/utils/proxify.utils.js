@@ -1,5 +1,5 @@
 import {
-  EventEmitter
+  EventEmitter,
 } from 'events';
 
 /**
@@ -8,7 +8,6 @@ import {
  * @classdesc ProxifySingleton handles undi/redo pattern by detecting changes in proxified object and queuing them into an undo/redo stack
  */
 class ProxifySingleton extends EventEmitter {
-
   constructor() {
     if (!ProxifySingletonInstance) {
       super();
@@ -34,15 +33,15 @@ class ProxifySingleton extends EventEmitter {
   queueUndoable(prop, undo, redo) {
     this.undoStack.push({
       hash: this.hash,
-      prop: prop,
-      undo: undo,
-      redo: redo,
-      url: window.location.pathname
+      prop,
+      undo,
+      redo,
+      url: window.location.pathname,
     });
     if (this.undoStack.length > this.stackSize) {
       this.undoStack.shift();
     }
-    this.emit("changed");
+    this.emit('changed');
   }
 
   /**
@@ -65,13 +64,13 @@ class ProxifySingleton extends EventEmitter {
       let undo_url = null;
       while (this.undoStack[this.undoStack.length - 1] && this.undoStack[this.undoStack.length - 1].hash != null && this.undoStack[this.undoStack.length - 1].hash === curr_hash) {
         this.undoStack[this.undoStack.length - 1].undo();
-        this.redoStack.push(this.undoStack[this.undoStack.length - 1])
+        this.redoStack.push(this.undoStack[this.undoStack.length - 1]);
         undo_url = this.undoStack[this.undoStack.length - 1].url;
         this.undoStack.pop();
       }
       if (undo_url) {
-        this.emit("undo", {
-          path: undo_url
+        this.emit('undo', {
+          path: undo_url,
         });
       }
     }
@@ -88,34 +87,30 @@ class ProxifySingleton extends EventEmitter {
       const curr_hash = this.redoStack[this.redoStack.length - 1].hash;
       while (this.redoStack[this.redoStack.length - 1] && this.redoStack[this.redoStack.length - 1].hash != null && this.redoStack[this.redoStack.length - 1].hash === curr_hash) {
         this.redoStack[this.redoStack.length - 1].redo();
-        this.undoStack.push(this.redoStack[this.redoStack.length - 1])
+        this.undoStack.push(this.redoStack[this.redoStack.length - 1]);
         undo_url = this.undoStack[this.undoStack.length - 1].url;
         this.redoStack.pop();
       }
       if (undo_url) {
-        this.emit("undo", {
-          path: undo_url
+        this.emit('undo', {
+          path: undo_url,
         });
       }
     }
-
   }
-
 }
 
 var ProxifySingletonInstance = new ProxifySingleton();
 
-
 /**
  * @class Proxify
- * @classdesc Proxify enables object properties proxiying. Classes extended using a Proxify instance will be grnated with 
+ * @classdesc Proxify enables object properties proxiying. Classes extended using a Proxify instance will be grnated with
  * Undo/redo capabilities
  */
 class Proxify {
-
   /**
    * Creates an instance of Proxify.
-   * 
+   *
    * @param {Array} except Blacklist of properties that should not be proxified
    * @memberof Proxify
    */
@@ -133,36 +128,36 @@ class Proxify {
    *
    * @public
    * @param {Array} [except=[]]
-   * @return {Proxy} Proxified instance (this) 
+   * @return {Proxy} Proxified instance (this)
    */
   proxify(except = []) {
-    this.except = except
-    Object.keys(this).forEach(key => {
+    this.except = except;
+    Object.keys(this).forEach((key) => {
       if (this[key] != null && typeof this[key] === 'object' && !this.except.includes(key)) {
         if (Array.isArray(this[key])) {
-          var self = this;
+          const self = this;
           this[key].pushAndStackUndo = (value) => {
             ProxifySingletonInstance.queueUndoable(key, () => {
               self[key].pop();
             }, () => {
               self[key].splice();
-              self[key].push(value)
-            })
+              self[key].push(value);
+            });
             self[key].splice();
-            return self[key].push(value)
-          }
+            return self[key].push(value);
+          };
           this[key].spliceAndStackUndo = (index, count) => {
-            const value_cp = Object.assign(Object.create(Object.getPrototypeOf(self[key][index])), self[key][index])
+            const value_cp = Object.assign(Object.create(Object.getPrototypeOf(self[key][index])), self[key][index]);
             ProxifySingletonInstance.queueUndoable(key, () => {
               self[key].splice(index, 0, value_cp);
             }, () => {
               self[key].splice(index, count);
-            })
+            });
             return self[key].splice(index, count);
-          }
+          };
         }
       }
-    })
+    });
     return new Proxy(this, this.handler);
   }
 
@@ -172,25 +167,24 @@ class Proxify {
    * @readonly
    */
   get handler() {
-    var self = this;
+    const self = this;
     return {
       set(target, prop, value) {
         if (!self.except.includes(prop)) {
-          const oldValue = target[prop]
+          const oldValue = target[prop];
           ProxifySingletonInstance.queueUndoable(prop, () => {
-            target[prop] = oldValue
+            target[prop] = oldValue;
           }, () => {
-            target[prop] = value
-          })
-          ProxifySingletonInstance.emit("changed");
+            target[prop] = value;
+          });
+          ProxifySingletonInstance.emit('changed');
         }
         return Reflect.set(...arguments);
-      }
-    }
+      },
+    };
   }
-
 }
 
 export {
-  ProxifySingletonInstance as ProxifySingleton, Proxify
+  ProxifySingletonInstance as ProxifySingleton, Proxify,
 };

@@ -1,11 +1,26 @@
 <template>
-  <uk-widget :defaultDocked="defaultDocked" :header="headerData" class="color_picker_widget" dockable>
+  <uk-widget
+    :default-docked="defaultDocked"
+    :header="headerData"
+    class="color_picker_widget"
+    dockable
+  >
     <uk-flex class="body">
       <div class="graphical">
         <div class="picker">
           <div class="color_wheel">
-            <canvas class="hsl_conical_gradient" ref="wheel" @mousedown="startDrag($event)" @mouseup="stopDrag()" height="150" width="150" />
-            <div class="tick" ref="tick" />
+            <canvas
+              ref="wheel"
+              class="hsl_conical_gradient"
+              height="150"
+              width="150"
+              @mousedown="startDrag($event)"
+              @mouseup="stopDrag()"
+            />
+            <div
+              ref="tick"
+              class="tick"
+            />
             <div
               ref="preview"
               class="preview"
@@ -17,33 +32,75 @@
             </div>
           </div>
         </div>
-        <uk-gauge class="lightness_picker" :background="currentLigBg" v-model="lig" :min="0" :max="100" ref="ligGauge" @input="updateTick()" />
+        <uk-gauge
+          ref="ligGauge"
+          v-model="lig"
+          class="lightness_picker"
+          :background="currentLigBg"
+          :min="0"
+          :max="100"
+          @input="updateTick()"
+        />
       </div>
       <div class="textual">
-        <uk-select-input style="margin-bottom: 8px" v-model="mode" label="Mode" :options="modeOptions" />
+        <uk-select-input
+          v-model="mode"
+          style="margin-bottom: 8px"
+          label="Mode"
+          :options="modeOptions"
+        />
         <template v-if="mode == 0">
           <div class="field">
-            <h3 style="flex: 1; margin-right: 8px">H:</h3>
-            <uk-num-input :min="0" :max="360" :default="0" v-model="hue" ref="hueInput" @input="updateTick()" />
+            <h3 style="flex: 1; margin-right: 8px">
+              H:
+            </h3>
+            <uk-num-input
+              ref="hueInput"
+              v-model="hue"
+              :min="0"
+              :max="360"
+              :default="0"
+              @input="updateTick()"
+            />
           </div>
           <div class="field">
-            <h3 style="flex: 1; margin-right: 8px">S:</h3>
-            <uk-num-input :min="0" :max="100" :default="0" v-model="sat" ref="satInput" @input="updateTick()" />
+            <h3 style="flex: 1; margin-right: 8px">
+              S:
+            </h3>
+            <uk-num-input
+              ref="satInput"
+              v-model="sat"
+              :min="0"
+              :max="100"
+              :default="0"
+              @input="updateTick()"
+            />
           </div>
           <div class="field">
-            <h3 style="flex: 1; margin-right: 8px">L:</h3>
-            <uk-num-input :min="0" :max="100" :default="0" v-model="lig" ref="ligInput" @input="updateTick()" />
+            <h3 style="flex: 1; margin-right: 8px">
+              L:
+            </h3>
+            <uk-num-input
+              ref="ligInput"
+              v-model="lig"
+              :min="0"
+              :max="100"
+              :default="0"
+              @input="updateTick()"
+            />
           </div>
         </template>
         <template v-else-if="mode == 1">
           <div class="field">
-            <h3 style="flex: 1; margin-right: 8px">R:</h3>
+            <h3 style="flex: 1; margin-right: 8px">
+              R:
+            </h3>
             <uk-num-input
-              :min="0"
-              :max="255"
-              :default="0"
-              v-model="r"
               ref="hueInput"
+              v-model="r"
+              :min="0"
+              :max="255"
+              :default="0"
               @input="
                 setFromRgb(r, g, b);
                 updateTick();
@@ -51,13 +108,15 @@
             />
           </div>
           <div class="field">
-            <h3 style="flex: 1; margin-right: 8px">G:</h3>
+            <h3 style="flex: 1; margin-right: 8px">
+              G:
+            </h3>
             <uk-num-input
-              :min="0"
-              :max="255"
-              :default="0"
-              v-model="g"
               ref="satInput"
+              v-model="g"
+              :min="0"
+              :max="255"
+              :default="0"
               @input="
                 setFromRgb(r, g, b);
                 updateTick();
@@ -65,13 +124,15 @@
             />
           </div>
           <div class="field">
-            <h3 style="flex: 1; margin-right: 8px">B:</h3>
+            <h3 style="flex: 1; margin-right: 8px">
+              B:
+            </h3>
             <uk-num-input
+              ref="ligInput"
+              v-model="b"
               :min="0"
               :max="255"
               :default="0"
-              v-model="b"
-              ref="ligInput"
               @input="
                 setFromRgb(r, g, b);
                 updateTick();
@@ -81,13 +142,15 @@
         </template>
         <template v-else>
           <div class="field">
-            <h3 style="flex: 1; margin-right: 8px">C:</h3>
+            <h3 style="flex: 1; margin-right: 8px">
+              C:
+            </h3>
             <uk-num-input
-              :min="0"
-              :max="255"
-              :default="0"
-              v-model="c"
               ref="hueInput"
+              v-model="c"
+              :min="0"
+              :max="255"
+              :default="0"
               @input="
                 setFromCMY(c, m, y);
                 updateTick();
@@ -95,13 +158,15 @@
             />
           </div>
           <div class="field">
-            <h3 style="flex: 1; margin-right: 8px">M:</h3>
+            <h3 style="flex: 1; margin-right: 8px">
+              M:
+            </h3>
             <uk-num-input
-              :min="0"
-              :max="255"
-              :default="0"
-              v-model="m"
               ref="satInput"
+              v-model="m"
+              :min="0"
+              :max="255"
+              :default="0"
               @input="
                 setFromCMY(c, m, y);
                 updateTick();
@@ -109,13 +174,15 @@
             />
           </div>
           <div class="field">
-            <h3 style="flex: 1; margin-right: 8px">Y:</h3>
+            <h3 style="flex: 1; margin-right: 8px">
+              Y:
+            </h3>
             <uk-num-input
+              ref="ligInput"
+              v-model="y"
               :min="0"
               :max="255"
               :default="0"
-              v-model="y"
-              ref="ligInput"
               @input="
                 setFromCMY(c, m, y);
                 updateTick();
@@ -129,7 +196,7 @@
 </template>
 
 <script>
-import colorMixin from "@/views/mixins/color.mixin";
+import colorMixin from '@/views/mixins/color.mixin';
 /**
  * Beware of the weird loopback issues if you are modifying this.
  * I believe it would be simpler to just restart mostly from zero ?
@@ -140,13 +207,12 @@ import colorMixin from "@/views/mixins/color.mixin";
  * @story Default {"rgbData":[0,0,0]}
  */
 export default {
-  name: "ukWidgetColorPicker",
+  name: 'UkWidgetColorPicker',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,
   },
   mixins: [colorMixin],
-  emits:['update:modelValue','input'],
   props: {
     rgbData: {
       type: Array,
@@ -154,13 +220,14 @@ export default {
     },
     defaultDocked: Boolean,
   },
+  emits: ['update:modelValue', 'input'],
   data() {
     return {
       headerData: {
-        title: "Color Picker",
-        icon: "pipette",
+        title: 'Color Picker',
+        icon: 'pipette',
       },
-      modeOptions: ["HSL", "RGB", "CMY"],
+      modeOptions: ['HSL', 'RGB', 'CMY'],
       modeData: null,
       mode: 0,
       dragging: false,
@@ -173,33 +240,85 @@ export default {
       k: 0,
       external: false,
       hueBg:
-        "linear-gradient(90deg, #FF0000 0%, #FF5C00 12.5%, #DBFF00 25%, #24FF00 37.5%, #00FF75 50%, #00F0FF 61.98%, #1400FF 73.44%, #9E00FF 83.33%, #FF00C7 89.58%, #FF0000 100%)",
+        'linear-gradient(90deg, #FF0000 0%, #FF5C00 12.5%, #DBFF00 25%, #24FF00 37.5%, #00FF75 50%, #00F0FF 61.98%, #1400FF 73.44%, #9E00FF 83.33%, #FF00C7 89.58%, #FF0000 100%)',
     };
+  },
+  computed: {
+    currentSatBg() {
+      return `linear-gradient(-90deg,hsla(${this.hue},100%,50%,.7) 0,hsla(${this.hue},0%,50%,.2) 100%)`;
+    },
+    currentLigBg() {
+      return `linear-gradient(-90deg,hsla(${this.hue},50%,100%,.8) 0,hsla(${this.hue},${this.sat}%,50%,1) 50%,hsla(${this.hue},50%,0%,.5) 100%)`;
+    },
+  },
+  watch: {
+    rgbData() {
+      [this.r, this.g, this.b] = this.rgbData;
+      this.setFromRgb(this.r, this.g, this.b);
+      this.updateTick(false);
+    },
+  },
+  mounted() {
+    const canvas = this.$refs.wheel;
+    const ctx = canvas.getContext('2d');
+    const radius = 150 / 2;
+    const toRad = (2 * Math.PI) / 360;
+    const step = 1 / radius;
+    const cx = radius;
+    const cy = radius;
+
+    ctx.clearRect(0, 0, 150, 150);
+    for (let i = 0; i < 360; i += step) {
+      const rad = i * toRad + Math.PI;
+      const x = radius * Math.cos(rad);
+      const y = radius * Math.sin(rad);
+      ctx.strokeStyle = `hsl(${i},100%,50%`;
+      ctx.beginPath();
+      ctx.moveTo(radius, radius);
+      ctx.lineTo(cx + x, cy + y);
+      ctx.stroke();
+      ctx.webkitImageSmoothing = true;
+    }
+
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+    grad.addColorStop(0, 'rgba(255,255,255,1)');
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2, true);
+    ctx.closePath();
+    ctx.fill();
+
+    [this.r, this.g, this.b] = this.rgbData;
+    this.setFromRgb(this.r, this.g, this.b);
+    this.updateTick(false);
   },
   methods: {
     isModificationInternal() {
-      let focused = document.activeElement;
-      let hueInputFocused = this.$refs.hueInput.$el.children[0].children[0] == focused;
-      let satInputFocused = this.$refs.satInput.$el.children[0].children[0] == focused;
-      let ligInputFocused = this.$refs.ligInput.$el.children[0].children[0] == focused;
-      let ligGuageFocused = this.$refs.ligGauge.$el.children[0].children[0] == focused;
+      const focused = document.activeElement;
+      const hueInputFocused = this.$refs.hueInput.$el.children[0].children[0] == focused;
+      const satInputFocused = this.$refs.satInput.$el.children[0].children[0] == focused;
+      const ligInputFocused = this.$refs.ligInput.$el.children[0].children[0] == focused;
+      const ligGuageFocused = this.$refs.ligGauge.$el.children[0].children[0] == focused;
       return hueInputFocused || satInputFocused || ligInputFocused || ligGuageFocused || this.dragging;
     },
     update() {
       if (this.isModificationInternal()) {
-        this.$emit("input", this.rgbValue());
+        this.$emit('input', this.rgbValue());
       }
     },
     rgbValue() {
-      var h = this.hue / 360;
-      var s = this.sat / 100;
-      var l = this.lig / 100;
-      var r, g, b;
+      const h = this.hue / 360;
+      const s = this.sat / 100;
+      const l = this.lig / 100;
+      let r; let g; let
+        b;
 
       if (s == 0) {
         r = g = b = l; // achromatic
       } else {
-        var hue2rgb = function hue2rgb(p, q, t) {
+        const hue2rgb = function hue2rgb(p, q, t) {
           if (t < 0) t += 1;
           if (t > 1) t -= 1;
           if (t < 1 / 6) return p + (q - p) * 6 * t;
@@ -208,28 +327,27 @@ export default {
           return p;
         };
 
-        var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-        var p = 2 * l - q;
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
         r = hue2rgb(p, q, h + 1 / 3);
         g = hue2rgb(p, q, h);
         b = hue2rgb(p, q, h - 1 / 3);
       }
       return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
     },
-    //props to Garry Tan => https://stackoverflow.com/questions/2353211/hsl-to-rgb-color-conversion
+    // props to Garry Tan => https://stackoverflow.com/questions/2353211/hsl-to-rgb-color-conversion
     setFromRgb(r, g, b) {
-
       (r /= 255), (g /= 255), (b /= 255);
-      var max = Math.max(r, g, b),
-        min = Math.min(r, g, b);
-      var h,
-        s,
-        l = (max + min) / 2;
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      let h;
+      let s;
+      const l = (max + min) / 2;
 
       if (max == min) {
         h = s = 0; // achromatic
       } else {
-        var d = max - min;
+        const d = max - min;
         s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
         switch (max) {
           case r:
@@ -253,41 +371,41 @@ export default {
       this.setFromRgb(255 - c, 255 - m, 255 - y);
     },
     startDrag(e) {
-      this.$utils.setCapture(e.currentTarget, "move");
+      this.$utils.setCapture(e.currentTarget, 'move');
       this.dragging = true;
-      var self = this;
-      var preview = this.$refs.preview;
-      window.addEventListener("mousemove", self.drag);
-      window.addEventListener("mouseup", self.stopDrag);
-      preview.style.visibility = "visible";
+      const self = this;
+      const { preview } = this.$refs;
+      window.addEventListener('mousemove', self.drag);
+      window.addEventListener('mouseup', self.stopDrag);
+      preview.style.visibility = 'visible';
       this.drag(e);
     },
     displayPopOver() {
-      var preview = this.$refs.preview;
-      preview.style.visibility = "visible";
+      const { preview } = this.$refs;
+      preview.style.visibility = 'visible';
     },
     hidePopOver() {
-      var preview = this.$refs.preview;
-      preview.style.visibility = "hidden";
+      const { preview } = this.$refs;
+      preview.style.visibility = 'hidden';
     },
     drag(e) {
       if (this.dragging == true) {
-        var tick = this.$refs.tick;
-        var preview = this.$refs.preview;
-        var wheel = this.$refs.wheel;
-        var wheelRect = wheel.getBoundingClientRect();
+        const { tick } = this.$refs;
+        const { preview } = this.$refs;
+        const { wheel } = this.$refs;
+        const wheelRect = wheel.getBoundingClientRect();
 
-        var centerX = wheel.clientWidth / 2;
-        var centerY = wheel.clientHeight / 2;
+        const centerX = wheel.clientWidth / 2;
+        const centerY = wheel.clientHeight / 2;
 
-        var posX = e.clientX - wheelRect.left - tick.clientWidth / 2;
-        var posY = e.clientY - wheelRect.top - tick.clientHeight / 2;
+        let posX = e.clientX - wheelRect.left - tick.clientWidth / 2;
+        let posY = e.clientY - wheelRect.top - tick.clientHeight / 2;
 
-        var centeredPosX = posX - centerX;
-        var centeredPosY = posY - centerY;
+        const centeredPosX = posX - centerX;
+        const centeredPosY = posY - centerY;
 
-        var radius = Math.sqrt(Math.pow(centeredPosX, 2) + Math.pow(centeredPosY, 2));
-        var alpha = Math.atan2(centeredPosY, centeredPosX);
+        let radius = Math.sqrt(centeredPosX ** 2 + centeredPosY ** 2);
+        const alpha = Math.atan2(centeredPosY, centeredPosX);
 
         if (radius > wheel.clientWidth / 2) {
           radius = wheel.clientWidth / 2;
@@ -308,17 +426,17 @@ export default {
     },
     updateTick(doUpdate = true) {
       if (this.dragging == false) {
-        var tick = this.$refs.tick;
-        var wheel = this.$refs.wheel;
+        const { tick } = this.$refs;
+        const { wheel } = this.$refs;
 
-        var alpha = (this.hue - 90) * (Math.PI / 180);
-        var radius = (this.sat / 100) * (wheel.clientWidth / 2);
+        const alpha = (this.hue - 90) * (Math.PI / 180);
+        const radius = (this.sat / 100) * (wheel.clientWidth / 2);
 
-        var centerX = wheel.clientWidth / 2;
-        var centerY = wheel.clientHeight / 2;
+        const centerX = wheel.clientWidth / 2;
+        const centerY = wheel.clientHeight / 2;
 
-        var posX = radius * Math.cos(alpha) + centerX - tick.clientWidth / 2;
-        var posY = radius * Math.sin(alpha) + centerY - tick.clientHeight / 2;
+        const posX = radius * Math.cos(alpha) + centerX - tick.clientWidth / 2;
+        const posY = radius * Math.sin(alpha) + centerY - tick.clientHeight / 2;
 
         tick.style.left = `${posX}px`;
         tick.style.top = `${posY}px`;
@@ -328,65 +446,13 @@ export default {
       }
     },
     stopDrag() {
-      var preview = this.$refs.preview;
+      const { preview } = this.$refs;
       if (preview) {
-        preview.style.visibility = "hidden";
+        preview.style.visibility = 'hidden';
       }
-      window.removeEventListener("mousemove", null);
-      window.removeEventListener("mouseup", null);
+      window.removeEventListener('mousemove', null);
+      window.removeEventListener('mouseup', null);
       this.dragging = false;
-    },
-  },
-  mounted() {
-    
-    const canvas = this.$refs.wheel;
-    const ctx = canvas.getContext("2d");
-    const radius = 150 / 2;
-    const toRad = (2 * Math.PI) / 360;
-    const step = 1 / radius;
-    const cx = radius;
-    const cy = radius;
-
-    ctx.clearRect(0, 0, 150, 150);
-    for (let i = 0; i < 360; i += step) {
-      let rad = i * toRad + Math.PI;
-      let x = radius * Math.cos(rad);
-      let y = radius * Math.sin(rad);
-      ctx.strokeStyle = `hsl(${i},100%,50%`;
-      ctx.beginPath();
-      ctx.moveTo(radius, radius);
-      ctx.lineTo(cx + x, cy + y);
-      ctx.stroke();
-      ctx.webkitImageSmoothing = true;
-    }
-
-    var grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-    grad.addColorStop(0, "rgba(255,255,255,1)");
-    grad.addColorStop(1, "rgba(255,255,255,0)");
-
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius, 0, Math.PI * 2, true);
-    ctx.closePath();
-    ctx.fill();
-
-    [this.r, this.g, this.b] = this.rgbData;
-    this.setFromRgb(this.r, this.g, this.b);
-    this.updateTick(false);
-  },
-  computed: {
-    currentSatBg() {
-      return `linear-gradient(-90deg,hsla(${this.hue},100%,50%,.7) 0,hsla(${this.hue},0%,50%,.2) 100%)`;
-    },
-    currentLigBg() {
-      return `linear-gradient(-90deg,hsla(${this.hue},50%,100%,.8) 0,hsla(${this.hue},${this.sat}%,50%,1) 50%,hsla(${this.hue},50%,0%,.5) 100%)`;
-    },
-  },
-  watch: {
-    rgbData() {
-      [this.r, this.g, this.b] = this.rgbData;
-      this.setFromRgb(this.r, this.g, this.b);
-      this.updateTick(false);
     },
   },
 };

@@ -1,20 +1,45 @@
 <template>
-  <uk-widget class="cuepool_widget" dockable :header="header">
-    <uk-flex col class="body">
-      <uk-txt-input placeholder="Search Cues" class="searchbox" :outlined="false" v-model="searchString" />
-      <uk-flex style="height: calc(100% - 25px)" class="body">
-        <uk-flex tabindex="0" @focus="handleFocus(true)" @focusout="handleFocus(false)" col class="body">
-          <div ref="grid" class="grid" @scroll="updateScrollPreview">
+  <uk-widget
+    class="cuepool_widget"
+    dockable
+    :header="header"
+  >
+    <uk-flex
+      col
+      class="body"
+    >
+      <uk-txt-input
+        v-model="searchString"
+        placeholder="Search Cues"
+        class="searchbox"
+        :outlined="false"
+      />
+      <uk-flex
+        style="height: calc(100% - 25px)"
+        class="body"
+      >
+        <uk-flex
+          tabindex="0"
+          col
+          class="body"
+          @focus="handleFocus(true)"
+          @focusout="handleFocus(false)"
+        >
+          <div
+            ref="grid"
+            class="grid"
+            @scroll="updateScrollPreview"
+          >
             <div
+              v-for="(item, index) in 120"
+              :key="index"
+              class="grid_item empty"
               @dragenter="
                 (e) => {
                   dragEnter(e, index);
                 }
               "
               @dblclick="displayCuepoolPopup(index)"
-              class="grid_item empty"
-              v-for="(item, index) in 120"
-              :key="index"
             >
               <div class="grid_item_body">
                 <h4>C-{{ index }}</h4>
@@ -24,7 +49,13 @@
               </div>
             </div>
             <div
+              v-for="cue in cues"
+              :key="cue"
+              :ref="`cue-${cue.id}`"
               :class="{ selected: selectedCue === cue.id || hoveredCueSelector === cue.id || hoveredCuePlayer === cue.id }"
+              :style="computeCueStyle(cue)"
+              class="grid_item"
+              :draggable="true"
               @click="playCue(cue)"
               @dragstart="
                 (e) => {
@@ -32,32 +63,42 @@
                 }
               "
               @dragover.prevent
-              :style="computeCueStyle(cue)"
-              class="grid_item"
-              v-for="cue in cues"
-              :key="cue"
-              :ref="`cue-${cue.id}`"
-              :draggable="true"
             >
-              <div class="grid_item_overlay" :style="{ background: cue.color + '!important' }">
+              <div
+                class="grid_item_overlay"
+                :style="{ background: cue.color + '!important' }"
+              >
                 <div
-                  @mouseenter="hoveredCuePlayer = cue.id"
-                  @mouseleave="hoveredCuePlayer = -1"
                   class="grid_item_body"
                   :style="computeCueLoader(cue)"
+                  @mouseenter="hoveredCuePlayer = cue.id"
+                  @mouseleave="hoveredCuePlayer = -1"
                 >
                   <Transition name="fade">
-                    <uk-flex center-both v-if="hoveredCuePlayer === cue.id" class="grid_item_body_overlay" style="">
-                      <uk-icon :class="{ playing: cue.state }" :name="cue.state ? 'stop' : 'play'" class="grid_item_body_icon" />
+                    <uk-flex
+                      v-if="hoveredCuePlayer === cue.id"
+                      center-both
+                      class="grid_item_body_overlay"
+                      style=""
+                    >
+                      <uk-icon
+                        :class="{ playing: cue.state }"
+                        :name="cue.state ? 'stop' : 'play'"
+                        class="grid_item_body_icon"
+                      />
                     </uk-flex>
-                    <uk-icon v-else :name="cue.type ? 'waveform' : 'mixer'" class="grid_item_body_icon" />
+                    <uk-icon
+                      v-else
+                      :name="cue.type ? 'waveform' : 'mixer'"
+                      class="grid_item_body_icon"
+                    />
                   </Transition>
                 </div>
                 <div
+                  class="grid_item_footer"
                   @mouseenter="hoveredCueSelector = cue.id"
                   @mouseleave="hoveredCueSelector = -1"
                   @click.stop="selectCue(cue)"
-                  class="grid_item_footer"
                 >
                   <p>{{ cue.name || "Cue" + cue.id }}</p>
                 </div>
@@ -66,31 +107,38 @@
           </div>
         </uk-flex>
         <div class="scroll_preview">
-          <div class="scroll_preview_scroller" ref="scroller" />
           <div
-            class="cue_preview"
-            :class="{ playing: cue.state, selected: cue.id === selectedCue }"
+            ref="scroller"
+            class="scroll_preview_scroller"
+          />
+          <div
             v-for="(cue, index) in cues"
             :key="index"
+            class="cue_preview"
+            :class="{ playing: cue.state, selected: cue.id === selectedCue }"
             :style="computeCuePreviewStyle(cue)"
           />
         </div>
       </uk-flex>
     </uk-flex>
-    <popup-cue-pool @add="addCue" :cueId="selectedCue" :group="group" v-model="cuePopupDisplayState" />
+    <popup-cue-pool
+      v-model="cuePopupDisplayState"
+      :cue-id="selectedCue"
+      :group="group"
+      @add="addCue"
+    />
   </uk-widget>
 </template>
 
 <script>
-import popupCuePool from "../_popups/group.modifier.popup.cuepool.vue";
+import popupCuePool from '../_popups/group.modifier.popup.cuepool.vue';
 
 export default {
-  name: "groupModifierWidgetCuepool",
+  name: 'GroupModifierWidgetCuepool',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,
   },
-  emits: ["select", "add"],
   components: {
     popupCuePool,
   },
@@ -103,20 +151,21 @@ export default {
       default: () => ({}),
     },
   },
+  emits: ['select', 'add'],
   data() {
     return {
       /**
        * Widget header data
        */
       header: {
-        title: "Cue Pool",
-        icon: "grid",
+        title: 'Cue Pool',
+        icon: 'grid',
       },
       /**
        * Search string
        * @todo implement cue search
        */
-      searchString: "",
+      searchString: '',
       /**
        * Cue creation popup display state
        */
@@ -143,6 +192,18 @@ export default {
       deletePopupState: false,
     };
   },
+  watch: {
+    /**
+     * @todo maybe avoid watching whole groups, evern though watching routine isn't deep ?
+     */
+    group() {
+      this.cues = this.group ? this.group.cuePool.cues : [];
+      this.selectCue(this.cues[0] || null);
+    },
+  },
+  beforeUnmount() {
+    window.removeEventListener('keydown', this.keydownHandler);
+  },
   methods: {
     /**
      * Computes cue loading gradient baed on cue playtime
@@ -152,7 +213,7 @@ export default {
      * @returns {Object} css background linear-gradient value
      */
     computeCueLoader(cue) {
-      let perc = (cue.time / cue.durationMS) * 100 * cue.state;
+      const perc = (cue.time / cue.durationMS) * 100 * cue.state;
       return {
         background: `linear-gradient(90deg ,var(--secondary-light) 0% ,var(--secondary-light) ${perc}% ,transparent ${perc}%,transparent 100% )`,
       };
@@ -165,9 +226,9 @@ export default {
      * @returns {Object} css left and top cue position
      */
     computeCueStyle(cue) {
-      let style = {
-        left: parseInt(cue.id % 4) * 101 + "px",
-        top: Math.floor(parseInt(cue.id) / 4) * 81 + "px",
+      const style = {
+        left: `${parseInt(cue.id % 4) * 101}px`,
+        top: `${Math.floor(parseInt(cue.id) / 4) * 81}px`,
       };
       return style;
     },
@@ -179,9 +240,9 @@ export default {
      * @returns {Object} css left and top cue position and background color
      */
     computeCuePreviewStyle(cue) {
-      let style = {
-        left: parseInt(cue.id % 4) * 6.9 + "px",
-        top: Math.floor(parseInt(cue.id) / 4) * 6.11 + "px",
+      const style = {
+        left: `${parseInt(cue.id % 4) * 6.9}px`,
+        top: `${Math.floor(parseInt(cue.id) / 4) * 6.11}px`,
         background: cue.color,
       };
       return style;
@@ -195,10 +256,10 @@ export default {
     selectCue(cue) {
       if (cue) {
         this.selectedCue = cue.id;
-        this.$emit("select", cue);
+        this.$emit('select', cue);
       } else {
         this.selectedCue = null;
-        this.$emit("select", null);
+        this.$emit('select', null);
       }
     },
     /**
@@ -229,7 +290,7 @@ export default {
      */
     addCue(cue) {
       this.selectCue(cue);
-      this.$emit("add", cue);
+      this.$emit('add', cue);
     },
     /**
      * Deletes a cue from the group
@@ -238,7 +299,7 @@ export default {
      */
     deleteCue() {
       this.deletePopupState = false;
-      let cue = this.group.cuePool.getFromId(this.selectedCue);
+      const cue = this.group.cuePool.getFromId(this.selectedCue);
       this.group.deleteCue(cue);
       this.selectCue(this.cues[0] || null);
     },
@@ -251,7 +312,7 @@ export default {
      */
     startDrag(e, cue) {
       this.draggedCue = cue;
-      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.effectAllowed = 'move';
     },
     /**
      * Callback for drag enter in cuepool slots
@@ -262,7 +323,7 @@ export default {
      */
     dragEnter(e, index) {
       e.preventDefault();
-      e.dataTransfer.dropEffect = "move";
+      e.dataTransfer.dropEffect = 'move';
       if (e.target.classList && index != this.draggedCue.id) {
         this.draggedCue.id = index;
       }
@@ -274,8 +335,8 @@ export default {
      * @param {Object} e scroll event
      */
     updateScrollPreview(e) {
-      let scrollingPerc = e.target.scrollTop / (e.target.scrollHeight - e.target.clientHeight);
-      this.$refs.scroller.style.marginTop = (e.target.clientHeight - 25) * scrollingPerc + "px";
+      const scrollingPerc = e.target.scrollTop / (e.target.scrollHeight - e.target.clientHeight);
+      this.$refs.scroller.style.marginTop = `${(e.target.clientHeight - 25) * scrollingPerc}px`;
     },
     /**
      * Handle component focus event
@@ -284,9 +345,9 @@ export default {
      * @param {Bool} state focus state
      */
     handleFocus(state) {
-      window.removeEventListener("keydown", this.keydownHandler);
+      window.removeEventListener('keydown', this.keydownHandler);
       if (state) {
-        window.addEventListener("keydown", this.keydownHandler);
+        window.addEventListener('keydown', this.keydownHandler);
       }
     },
     /**
@@ -296,22 +357,10 @@ export default {
      * @param {Object} e keydown event
      */
     keydownHandler(e) {
-      const key = e.key;
-      if (key === "Backspace" || key === "Delete") {
+      const { key } = e;
+      if (key === 'Backspace' || key === 'Delete') {
         this.deleteCue();
       }
-    },
-  },
-  beforeUnmount() {
-    window.removeEventListener("keydown", this.keydownHandler);
-  },
-  watch: {
-    /**
-     * @todo maybe avoid watching whole groups, evern though watching routine isn't deep ?
-     */
-    group() {
-      this.cues = this.group ? this.group.cuePool.cues : [];
-      this.selectCue(this.cues[0] || null);
     },
   },
 };

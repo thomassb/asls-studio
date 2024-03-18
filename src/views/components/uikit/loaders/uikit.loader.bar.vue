@@ -4,7 +4,7 @@
 
 <script>
 export default {
-  name: "ukLoaderBar",
+  name: 'UkLoaderBar',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,

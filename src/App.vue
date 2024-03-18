@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <router-view/>
+    <router-view />
   </div>
 </template>
 
@@ -11,8 +11,8 @@ export default {
     // or, for full vue 3 compat in this component:
     MODE: 3,
   },
-  components: {}
-}
+  components: {},
+};
 </script>
 
 <style>

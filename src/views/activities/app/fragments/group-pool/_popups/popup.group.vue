@@ -1,13 +1,38 @@
 <template>
-  <uk-popup @submit="create()" @input="update()" v-model="state" :header="headerData">
+  <uk-popup
+    v-model="state"
+    :header="headerData"
+    @submit="create()"
+    @input="update()"
+  >
     <uk-flex class="group_popup">
       <uk-flex>
-        <uk-list class="fixture_list" :items="universes" colored toggleable filterable noHighlight @toggle="setFixtureList" />
+        <uk-list
+          class="fixture_list"
+          :items="universes"
+          colored
+          toggleable
+          filterable
+          no-highlight
+          @toggle="setFixtureList"
+        />
       </uk-flex>
       <uk-flex col>
-        <uk-flex style="padding: 10px" col :gap="8">
-          <uk-txt-input label="Name" v-model="name" />
-          <uk-select-input label="Color" @input="setGroupColor" :options="colorOptions" :modelValue="getIndexFromColor(color)" />
+        <uk-flex
+          style="padding: 10px"
+          col
+          :gap="8"
+        >
+          <uk-txt-input
+            v-model="name"
+            label="Name"
+          />
+          <uk-select-input
+            label="Color"
+            :options="colorOptions"
+            :model-value="getIndexFromColor(color)"
+            @input="setGroupColor"
+          />
         </uk-flex>
       </uk-flex>
     </uk-flex>
@@ -15,27 +40,27 @@
 </template>
 
 <script>
-import colorMixin from "@/views/mixins/color.mixin";
-import PopupMixin from "@/views/mixins/popup.mixin.js";
+import colorMixin from '@/views/mixins/color.mixin';
+import PopupMixin from '@/views/mixins/popup.mixin.js';
 
 export default {
-  name: "ukPopupGroup",
+  name: 'UkPopupGroup',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,
   },
-  emits:['create'],
   mixins: [colorMixin, PopupMixin],
+  emits: ['create'],
   data() {
     return {
       /**
        * Popup header data
        */
-      headerData: { title: "Create Group" },
+      headerData: { title: 'Create Group' },
       /**
        * Group name
        */
-      name: "New Group",
+      name: 'New Group',
       /**
        * Group Color
        */
@@ -43,12 +68,21 @@ export default {
       /**
        * Handle to show universe pool
        */
-      universes: this.$show.universePool.listable,//JSON.parse(JSON.stringify(this.$show.universePool.listable)),
+      universes: this.$show.universePool.listable, // JSON.parse(JSON.stringify(this.$show.universePool.listable)),
       /**
        * List of fixtures selected for grouping
        */
       selectedFixtures: [],
     };
+  },
+  watch: {
+    modelValue(state) {
+      if (state) {
+        this.init();
+      } else {
+        this.deinit();
+      }
+    },
   },
   methods: {
     /**
@@ -64,7 +98,7 @@ export default {
        * Anyway, it should do the job for now.
        */
       this.universes = this.$show.universePool.listable;
-      let groupId = this.$show.groupPool.genGroupId();
+      const groupId = this.$show.groupPool.genGroupId();
       this.name = `Group ${groupId}`;
       this.color = this.getColorFromIndex(groupId);
       this.selectedFixtures = [];
@@ -92,7 +126,7 @@ export default {
         this.selectedFixtures[0].highlightSingle(false, true);
       }
       this.selectedFixtures = fixturesData.map((fixture, index) => {
-        let fxt = this.$show.fixturePool.getFromId(fixture.id);
+        const fxt = this.$show.fixturePool.getFromId(fixture.id);
         index ? fxt.highlight(true, true) : fxt.highlightSingle(true, true);
         return fxt;
       });
@@ -103,14 +137,14 @@ export default {
      * @public
      */
     create() {
-      let group = this.$show.groupPool.addRaw({
+      const group = this.$show.groupPool.addRaw({
         color: this.color,
         name: this.name,
       });
       this.selectedFixtures.forEach((fixture) => {
         group.addFixture(fixture);
       });
-      this.$emit("create", group);
+      this.$emit('create', group);
       this.close();
     },
     /**
@@ -120,15 +154,6 @@ export default {
     deinit() {
       if (this.selectedFixtures.length) {
         this.selectedFixtures[0].highlightSingle(false, true);
-      }
-    },
-  },
-  watch: {
-    modelValue(state) {
-      if (state) {
-        this.init();
-      } else {
-        this.deinit();
       }
     },
   },

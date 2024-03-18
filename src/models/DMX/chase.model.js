@@ -1,58 +1,53 @@
-'use strict'
-
+import ukColors from '@/views/components/uikit/colors/uikit.colors.js';
 import {
-  Proxify
-} from '../utils/proxify.utils.js'
+  Proxify,
+} from '../utils/proxify.utils.js';
 import Live from './live.model';
 import CueItemPool from './cue.item.pool.model';
-import ukColors from '@/views/components/uikit/colors/uikit.colors.js'
 import Cue from './cue.model.js';
-
 
 /**
  * Default chase duration in bars
- * 
+ *
  * @constant {Number} CHASE_DEFAULT_DURATION
  */
 const CHASE_DEFAULT_DURATION = 1;
 /**
  * Chase trigger styles enumeration
- * 
+ *
  * @constant {Object} CHASE_TRIGGER_STYLES
  * @enum {Number}
  */
 const CHASE_TRIGGER_STYLES = {
   LOOP: 0,
   ONE_SHOT: 1,
-}
+};
 /**
  * Chase states enumeration
- * 
+ *
  * @constant {Object} CHASE_STATES
  * @enum {Number}
  */
 const CHASE_STATES = {
   STOPPED: 0,
-  RUNNING: 1
-}
+  RUNNING: 1,
+};
 /**
  * Default chase data
- * 
+ *
  * @constant {Object} DEFAULT_CHASE_DATA
  */
 const DEFAULT_CHASE_DATA = {
   DURATION: 1,
-  TRIGGER: CHASE_TRIGGER_STYLES.LOOP
-}
-
+  TRIGGER: CHASE_TRIGGER_STYLES.LOOP,
+};
 
 /**
  * @class Chase
  * @extends {Proxify}
- * @classdesc Chases are collections of cues to be triggered over time 
+ * @classdesc Chases are collections of cues to be triggered over time
  */
 class Chase extends Proxify {
-
   /**
    * Creates an instance of Chase.
    * @param {Object} [data={}] chase configuration object
@@ -86,7 +81,7 @@ class Chase extends Proxify {
 
   /**
    * Chase color
-   * 
+   *
    * @type {String}
    */
   set color(color) {
@@ -119,7 +114,7 @@ class Chase extends Proxify {
    */
   set cues(cues) {
     if (cues != null) {
-      cues.forEach(cue => this.addCue(cue));
+      cues.forEach((cue) => this.addCue(cue));
     } else {
       this._cues = [];
     }
@@ -141,8 +136,8 @@ class Chase extends Proxify {
     return this._cues || [];
   }
 
-  get actualDuration(){
-    return Math.ceil(Math.max(...this.cues.map(cue => cue.duration), (this.duration+1) * this.barSubDiv) / this.barSubDiv);
+  get actualDuration() {
+    return Math.ceil(Math.max(...this.cues.map((cue) => cue.duration), (this.duration + 1) * this.barSubDiv) / this.barSubDiv);
   }
 
   /**
@@ -193,7 +188,7 @@ class Chase extends Proxify {
    * @type {Number}
    */
   get barSubDiv() {
-    return 64; //Math.ceil(128 / this.duration)
+    return 64; // Math.ceil(128 / this.duration)
   }
 
   /**
@@ -209,8 +204,8 @@ class Chase extends Proxify {
       color: this.color,
       duration: this.duration,
       trigger: this.trigger,
-      cues: this.cues.map(c => c.showData)
-    }
+      cues: this.cues.map((c) => c.showData),
+    };
   }
 
   /**
@@ -225,10 +220,10 @@ class Chase extends Proxify {
       this.animationId = Live.add(this.update.bind(this), this.quantize);
     } else if (this.animationId != null) {
       this.elapsed = 0;
-      this.cues.forEach(cueItemPool => {
+      this.cues.forEach((cueItemPool) => {
         cueItemPool.cue.state = 0;
-        cueItemPool.cue.cue(false)
-      })
+        cueItemPool.cue.cue(false);
+      });
       Live.remove(this.animationId);
       this.onEnd();
       this.animationId = null;
@@ -238,7 +233,7 @@ class Chase extends Proxify {
 
   /**
    * Updates chase's cues individually using provided time in milliseconds
-   * 
+   *
    * @public
    * @param {Number} time Live animation time in milliseconds
    */
@@ -246,7 +241,7 @@ class Chase extends Proxify {
     if (this.deltaStart == null) {
       this.deltaStart = time;
     }
-    let t = time - this.deltaStart;
+    const t = time - this.deltaStart;
     if (t >= this.durationMSec) {
       switch (this.trigger) {
         case CHASE_TRIGGER_STYLES.LOOP:
@@ -254,7 +249,7 @@ class Chase extends Proxify {
           break;
         case CHASE_TRIGGER_STYLES.ONE_SHOT:
           this.cue(false);
-          return
+          return;
       }
     }
     this.elapsed = t;
@@ -263,8 +258,8 @@ class Chase extends Proxify {
      * Also, setting cue state to 1 for scenes when cue item is running seems to
      * break a lot of things. Have a look into it.
      */
-    this.cues.forEach(cueItemPool => {
-      cueItemPool.items.forEach(item => {
+    this.cues.forEach((cueItemPool) => {
+      cueItemPool.items.forEach((item) => {
         if (t >= item.tick * this.tickDuration && t <= (item.tick + item.length) * this.tickDuration) {
           if (cueItemPool.cue.type == 1) {
             cueItemPool.cue.state = 1;
@@ -273,15 +268,15 @@ class Chase extends Proxify {
         } else {
           cueItemPool.cue.state = 0;
         }
-      })
-    })
+      });
+    });
   }
 
   /**
    * Add a fixture to the chase
-   * 
+   *
    * @public
-   * @param {Object} fixture 
+   * @param {Object} fixture
    */
   addFixture(fixture) {
     this.fixtures.push(fixture);
@@ -296,10 +291,10 @@ class Chase extends Proxify {
   addCue(data) {
     if (data instanceof Cue) {
       data = {
-        cue: data
-      }
+        cue: data,
+      };
     }
-    let cueItemPool = this.cues.find(cueItemPool => cueItemPool.cue.id === data.cue.id)
+    let cueItemPool = this.cues.find((cueItemPool) => cueItemPool.cue.id === data.cue.id);
     if (!cueItemPool) {
       cueItemPool = new CueItemPool(data);
       this.cues.pushAndStackUndo(cueItemPool);
@@ -313,7 +308,7 @@ class Chase extends Proxify {
    * @param {Object} cueItemData handle to cue to be removed
    */
   deleteCue(cueItemData) {
-    let cueItemPoolIndex = this.cues.findIndex(cueItemPool => cueItemPool.cue.id === cueItemData.id);
+    const cueItemPoolIndex = this.cues.findIndex((cueItemPool) => cueItemPool.cue.id === cueItemData.id);
     this.cues[cueItemPoolIndex].clearAll();
     this.cues.spliceAndStackUndo(cueItemPoolIndex, 1);
     // this.actualDuration = Math.ceil(Math.max(...this.cues.map(cue => cue.duration), this.duration * this.barSubDiv) / this.barSubDiv);
@@ -327,14 +322,13 @@ class Chase extends Proxify {
    */
   static deleteInstance(instance) {
     if (instance.animationId != null) {
-      Live.remove(instance.animationId)
+      Live.remove(instance.animationId);
     }
-    Object.keys(instance).forEach(prop => {
-      delete instance[prop]
-    })
+    Object.keys(instance).forEach((prop) => {
+      delete instance[prop];
+    });
     instance = null;
   }
-
 }
 
 export default Chase;

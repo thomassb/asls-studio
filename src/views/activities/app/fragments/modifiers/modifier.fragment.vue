@@ -1,14 +1,14 @@
 <template>
   <uk-flex class="modifier">
     <!-- <keep-alive> -->
-      <router-view ref="modifier"/>
+    <router-view ref="modifier" />
     <!-- </keep-alive> -->
   </uk-flex>
 </template>
 
 <script>
 export default {
-  name: "modifierFragment",
+  name: 'ModifierFragment',
 };
 </script>
 

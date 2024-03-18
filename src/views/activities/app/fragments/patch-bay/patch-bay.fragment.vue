@@ -5,13 +5,21 @@
       <span style="flex: 1" />
       <!-- <uk-button @click="displayPatchPopup" icon="patch" style="margin-right: 8px" label="patch" /> -->
     </div>
-    <uk-list deletable @unfold="displayUniverse" @select="displayFixture" colored class="patch_bay_universe_list" filterable :items="pool.listable" />
+    <uk-list
+      deletable
+      colored
+      class="patch_bay_universe_list"
+      filterable
+      :items="pool.listable"
+      @unfold="displayUniverse"
+      @select="displayFixture"
+    />
   </div>
 </template>
 
 <script>
 export default {
-  name: "patchBayFragment",
+  name: 'PatchBayFragment',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,

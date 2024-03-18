@@ -1,12 +1,19 @@
 <template>
-  <uk-popup @submit="submit()" backdrop :movable="false" @input="update()" v-model="state" :header="headerData"/>
+  <uk-popup
+    v-model="state"
+    backdrop
+    :movable="false"
+    :header="headerData"
+    @submit="submit()"
+    @input="update()"
+  />
 </template>
 
 <script>
-import PopupMixin from "@/views/mixins/popup.mixin.js"
+import PopupMixin from '@/views/mixins/popup.mixin.js';
 
 export default {
-  name: "ukPopupSaveas",
+  name: 'UkPopupSaveas',
   mixins: [PopupMixin],
   props: {
     error: [Error, Object],
@@ -20,37 +27,37 @@ export default {
       /**
        * Popup header data
        */
-      headerData: { title: "Export Project" },
+      headerData: { title: 'Export Project' },
     };
+  },
+  watch: {
+    value(state) {
+      this.state = state;
+      if (state) {
+        this.displaySaveasPopup();
+      }
+    },
   },
   methods: {
     /**
      * Generate showfile and display native download popup
-     * 
+     *
        * @public
      */
     displaySaveasPopup() {
       try {
-        var el = document.createElement("a");
-        el.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(this.$show.genShowFile()));
-        el.setAttribute("download", `${this.$show.name || "asls_showfile"}.json` || "showfile.json");
-        el.style.display = "none";
+        const el = document.createElement('a');
+        el.setAttribute('href', `data:text/plain;charset=utf-8,${encodeURIComponent(this.$show.genShowFile())}`);
+        el.setAttribute('download', `${this.$show.name || 'asls_showfile'}.json` || 'showfile.json');
+        el.style.display = 'none';
         document.body.appendChild(el);
         el.click();
         document.body.removeChild(el);
       } catch (err) {
         console.log(err);
-      }finally{
+      } finally {
         this.state = false;
         this.update();
-      }
-    },
-  },
-  watch: {
-    value(state) {
-      this.state = state;
-      if(state){
-        this.displaySaveasPopup();
       }
     },
   },

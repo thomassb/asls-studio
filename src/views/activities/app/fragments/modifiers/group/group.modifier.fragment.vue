@@ -1,34 +1,54 @@
 <template>
-  <div class="group_modifier" v-show="group">
+  <div
+    v-show="group"
+    class="group_modifier"
+  >
     <group-settings-widget :group="group" />
     <fixture-pool-widget
       v-show="group"
-      @delete="deleteFixtures"
       :pool="group ? group.fixturePool : {}"
       :action="{ icon: 'new', text: 'add', callback: displayFixturePopup }"
+      @delete="deleteFixtures"
     />
-    <widget-cuepool v-show="group" @select="selectCue" :group="group" />
-    <cue-settings-widget v-show="cue" :cue="cue" />
-    <scene-modifier :scene="cue" v-show="cue && cue.type === 0" />
-    <effect-modifier :effect="cue" v-show="cue && cue.type === 1" />
-    <popup-group-patch v-show="group" :group="group" v-model="fixturePopupDisplayState" />
+    <widget-cuepool
+      v-show="group"
+      :group="group"
+      @select="selectCue"
+    />
+    <cue-settings-widget
+      v-show="cue"
+      :cue="cue"
+    />
+    <scene-modifier
+      v-show="cue && cue.type === 0"
+      :scene="cue"
+    />
+    <effect-modifier
+      v-show="cue && cue.type === 1"
+      :effect="cue"
+    />
+    <popup-group-patch
+      v-show="group"
+      v-model="fixturePopupDisplayState"
+      :group="group"
+    />
   </div>
 </template>
 
 <script>
-import colorMixin from "@/views/mixins/color.mixin";
-import FixturePoolWidget from "../_widgets/modifier.widget.fixture.pool.vue";
+import colorMixin from '@/views/mixins/color.mixin';
+import FixturePoolWidget from '../_widgets/modifier.widget.fixture.pool.vue';
 
-import SceneModifier from "./group.scene.modifier.fragment.vue";
-import EffectModifier from "./group.effect.modifier.fragment.vue";
+import SceneModifier from './group.scene.modifier.fragment.vue';
+import EffectModifier from './group.effect.modifier.fragment.vue';
 
-import PopupGroupPatch from "./_popups/group.modifier.popup.patch.vue";
-import GroupSettingsWidget from "./_widgets/group.modifier.widget.settings.vue";
-import CueSettingsWidget from "./_widgets/group.modifier.widget.cue.settings.vue";
-import WidgetCuepool from "./_widgets/group.modifier.widget.cuepool.vue";
+import PopupGroupPatch from './_popups/group.modifier.popup.patch.vue';
+import GroupSettingsWidget from './_widgets/group.modifier.widget.settings.vue';
+import CueSettingsWidget from './_widgets/group.modifier.widget.cue.settings.vue';
+import WidgetCuepool from './_widgets/group.modifier.widget.cuepool.vue';
 
 export default {
-  name: "groupModifierFragment",
+  name: 'GroupModifierFragment',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,
@@ -63,10 +83,18 @@ export default {
       fixturePopupDisplayState: false,
     };
   },
+  watch: {
+    '$route.params.groupId': function () {
+      this.fetchGroupData();
+    },
+  },
+  mounted() {
+    this.fetchGroupData();
+  },
   methods: {
     /**
      * Fetches group data from route's groupId param
-     * 
+     *
        * @public
      */
     fetchGroupData() {
@@ -87,7 +115,7 @@ export default {
     },
     /**
      * Deletes one or multiple fixtures from the group's fixture list
-     * 
+     *
        * @public
      * @param {Array} fixtures array of group fixture objects
      */
@@ -98,14 +126,14 @@ export default {
     },
     /**
      * Selects a cue to be displayed within the group's cue sub-fragment
-     * 
+     *
        * @public
      * @param {Object} cuehandle to the group's cue instance to be displayed
      */
     selectCue(cue) {
       if (cue) {
         this.cue = cue;
-        if (this.$route.name === "Group") {
+        if (this.$route.name === 'Group') {
           history.pushState({}, null, `${this.$route.path}/cue/${encodeURIComponent(cue.id)}`);
         }
       } else {
@@ -113,8 +141,8 @@ export default {
       }
     },
     /**
-     * Prepares the list of available fixtures and displays group fixture patching popup. 
-     * 
+     * Prepares the list of available fixtures and displays group fixture patching popup.
+     *
        * @public
      */
     displayFixturePopup() {
@@ -127,14 +155,6 @@ export default {
         }
       });
       this.fixturePopupDisplayState = true;
-    },
-  },
-  mounted() {
-    this.fetchGroupData();
-  },
-  watch: {
-    "$route.params.groupId"() {
-      this.fetchGroupData();
     },
   },
 };

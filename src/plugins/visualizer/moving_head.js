@@ -1,6 +1,7 @@
-var THREE = window.THREE = require('three');
-import ModelInstancer from './model_instancer'
+import * as three from 'three';
+import ModelInstancer from './model_instancer';
 
+const THREE = window.THREE || three;
 
 const VOLUMETRIC_VERTEX_SHADER = `
 #include <clipping_planes_pars_vertex>
@@ -64,8 +65,7 @@ void main(){
     gl_Position	= vWorldPosition;   //Setting up fragment world position 
 }`;
 
-const VOLUMETRIC_3DNOISE_FRAGMENT_SHADER =
-  `
+const VOLUMETRIC_3DNOISE_FRAGMENT_SHADER = `
 //
 // Description : Array and textureless GLSL 2D/3D/4D simplex 
 //               noise functions.
@@ -172,8 +172,7 @@ float snoise(vec3 v)
 
 `;
 
-const VOLUMETRIC_FRAGMENT_SHADER =
-  VOLUMETRIC_3DNOISE_FRAGMENT_SHADER + ` 
+const VOLUMETRIC_FRAGMENT_SHADER = `${VOLUMETRIC_3DNOISE_FRAGMENT_SHADER} 
 #include <clipping_planes_pars_fragment>
 #define M_PI 3.1415926535897932384626433832795
 precision highp float;
@@ -307,41 +306,39 @@ const MODEL_MATERIAL = new THREE.MeshStandardMaterial({
   clippingPlanes: true,
 });
 
-MODEL_MATERIAL.onBeforeCompile = shader => {
-  //the rest is the same
+MODEL_MATERIAL.onBeforeCompile = (shader) => {
+  // the rest is the same
   shader.vertexShader = shader.vertexShader.replace(
     '#define STANDARD\n',
     `#define STANDARD
          attribute float highlight;
-         varying float vHighlight;`
-  )
+         varying float vHighlight;`,
+  );
   shader.vertexShader = shader.vertexShader.replace(
     '#include <clipping_planes_vertex>\n\t',
-    '#include <clipping_planes_vertex>\nvHighlight = highlight;\n'
-  )
+    '#include <clipping_planes_vertex>\nvHighlight = highlight;\n',
+  );
   shader.fragmentShader = shader.fragmentShader.replace(
     'varying vec3 vViewPosition;\n',
-    'varying vec3 vViewPosition;\nvarying float vHighlight;\n'
-  )
+    'varying vec3 vViewPosition;\nvarying float vHighlight;\n',
+  );
   shader.fragmentShader = shader.fragmentShader.replace(
     'totalEmissiveRadiance = emissive;\n',
-    'totalEmissiveRadiance = vHighlight == 0.0 ? emissive : vec3(.92,.24,.33);\n'
-  )
+    'totalEmissiveRadiance = vHighlight == 0.0 ? emissive : vec3(.92,.24,.33);\n',
+  );
   shader.fragmentShader = shader.fragmentShader.replace(
     'vec4 diffuseColor = vec4( diffuse, opacity );\n',
-    'vec4 diffuseColor = vec4( diffuse, vHighlight == 0.0 ? 1.0 : 0.5 );\n'
-  )
+    'vec4 diffuseColor = vec4( diffuse, vHighlight == 0.0 ? 1.0 : 0.5 );\n',
+  );
 
   MODEL_MATERIAL.userData.shader = shader;
-}
-
+};
 
 const MAX_INSTANCES = 100;
 const vector_cam = new THREE.Vector3();
 const vector_beam = new THREE.Vector3();
 const vector_beam_pos = new THREE.Vector3();
 const vector_cam_pos = new THREE.Vector3();
-
 
 const BEAM_RESOLUTION = 100;
 const BEAM_SEGMENTS = 1;
@@ -357,10 +354,10 @@ const SPOTLIGHT_PHYSICALLY_CORRECT_PENUMBRA = 1.2;
 const DEFAULT_COLOR_TEMP = 8000;
 
 const SLOT_TYPES = {
-  OPEN: "Open",
-  COLOR: "Color",
-  GOBO: "Gobo"
-}
+  OPEN: 'Open',
+  COLOR: 'Color',
+  GOBO: 'Gobo',
+};
 
 const SHUTTER_STROBE_EFFETCS = {
   OPEN: 'Open',
@@ -372,45 +369,44 @@ const SHUTTER_STROBE_EFFETCS = {
   RAMP_UP_DOWN: 'RampUpDown',
   LIGHTNING: 'Lighting',
   SPIKES: 'Spikes',
-}
+};
 
 const SHUTTER_VALUE = {
   OPEN: 1.0,
-  CLOSED: 0.0
-}
+  CLOSED: 0.0,
+};
 
 const SHUTTER_STROBE_FREQUENCIES_DEFAULT = {
   SLOW: 1,
-  FAST: 10
-}
+  FAST: 10,
+};
 
-var position_buffer_attribute = new THREE.InstancedBufferAttribute(new Float32Array(MAX_INSTANCES * 3), 3)
-var direction_buffer_attribute = new THREE.InstancedBufferAttribute(new Float32Array(MAX_INSTANCES * 3), 3)
-var intensity_buffer_attribute = new THREE.InstancedBufferAttribute(new Float32Array(MAX_INSTANCES), 1)
-var color_buffer_attribute = new THREE.InstancedBufferAttribute(new Float32Array(MAX_INSTANCES * 3), 3)
-var emissive_buffer_attribute = new THREE.InstancedBufferAttribute(new Float32Array(MAX_INSTANCES), 1)
-var angle_buffer_attribute = new THREE.InstancedBufferAttribute(new Float32Array(MAX_INSTANCES * 2), 2)
+const position_buffer_attribute = new THREE.InstancedBufferAttribute(new Float32Array(MAX_INSTANCES * 3), 3);
+const direction_buffer_attribute = new THREE.InstancedBufferAttribute(new Float32Array(MAX_INSTANCES * 3), 3);
+const intensity_buffer_attribute = new THREE.InstancedBufferAttribute(new Float32Array(MAX_INSTANCES), 1);
+const color_buffer_attribute = new THREE.InstancedBufferAttribute(new Float32Array(MAX_INSTANCES * 3), 3);
+const emissive_buffer_attribute = new THREE.InstancedBufferAttribute(new Float32Array(MAX_INSTANCES), 1);
+const angle_buffer_attribute = new THREE.InstancedBufferAttribute(new Float32Array(MAX_INSTANCES * 2), 2);
 
-var baseGeo = new THREE.InstancedBufferGeometry();
-var yokeGeo = new THREE.InstancedBufferGeometry();
-var headGeo = new THREE.InstancedBufferGeometry();
-var beamGeo = new THREE.InstancedBufferGeometry();
-var targetGeo = new THREE.InstancedBufferGeometry();
-var boxHelperGeo = new THREE.InstancedBufferGeometry();
+const baseGeo = new THREE.InstancedBufferGeometry();
+const yokeGeo = new THREE.InstancedBufferGeometry();
+const headGeo = new THREE.InstancedBufferGeometry();
+const beamGeo = new THREE.InstancedBufferGeometry();
+const targetGeo = new THREE.InstancedBufferGeometry();
+const boxHelperGeo = new THREE.InstancedBufferGeometry();
 
+let baseMesh;
+let yokeMesh;
+let headMesh;
+let beamMesh;
+let capMesh;
+let boxHelperMesh;
 
-var baseMesh;
-var yokeMesh;
-var headMesh;
-var beamMesh;
-var capMesh;
-var boxHelperMesh;
+let camera_handle = null;
+let scene_handle = null;
 
-var camera_handle = null;
-var scene_handle = null;
-
-var instances = [];
-var instanceCount = 0;
+const instances = [];
+let instanceCount = 0;
 
 /**
  * Defines a 3D moving head instance
@@ -418,7 +414,6 @@ var instanceCount = 0;
  * @class MovingHead
  */
 class MovingHead {
-
   /**
    * Creates an instance of MovingHead.
    * @param {string} [data={
@@ -451,9 +446,8 @@ class MovingHead {
     pan: 0.0,
     tilt: 0.0,
     goboWheel: [],
-    colorWheel: []
+    colorWheel: [],
   }) {
-
     this._id = instanceCount++;
     this._position = new THREE.Vector3();
     this._rotation = new THREE.Vector3();
@@ -481,14 +475,13 @@ class MovingHead {
 
     this._shutterStrobe = {
       effect: SHUTTER_STROBE_EFFETCS.OPEN,
-      frequency: SHUTTER_STROBE_FREQUENCIES_DEFAULT.SLOW
-    }
-
+      frequency: SHUTTER_STROBE_FREQUENCIES_DEFAULT.SLOW,
+    };
   }
 
   /**
    * Instance ID
-   * 
+   *
    * @type {Number}
    */
   get id() {
@@ -497,7 +490,7 @@ class MovingHead {
 
   /**
    * Beam angle
-   * 
+   *
    * @type {Number}
    */
   get angle() {
@@ -506,7 +499,7 @@ class MovingHead {
 
   /**
    * Beam color
-   * 
+   *
    * @type {String}
    */
   get color() {
@@ -515,7 +508,7 @@ class MovingHead {
 
   /**
    * Pan value in degrees
-   * 
+   *
    * @type {Number}
    */
   get pan() {
@@ -524,7 +517,7 @@ class MovingHead {
 
   /**
    * Pan-fine value in degrees
-   * 
+   *
    * @type {Number}
    */
   get panFine() {
@@ -533,7 +526,7 @@ class MovingHead {
 
   /**
    * Tilt value in degrees
-   * 
+   *
    * @type {Number}
    */
   get tilt() {
@@ -542,7 +535,7 @@ class MovingHead {
 
   /**
    * Tilt-fine value in degrees
-   * 
+   *
    * @type {Number}
    */
   get tiltFine() {
@@ -551,8 +544,8 @@ class MovingHead {
 
   /**
    * Beam intensity
-   * @todo path shutter bug 
-   * 
+   * @todo path shutter bug
+   *
    * @type {Number}
    */
   get intensity() {
@@ -561,20 +554,20 @@ class MovingHead {
 
   /**
    * Beam radius
-   * 
+   *
    * @type {Number}
    * @private
    */
   get radius() {
-    var angle = MovingHead.degToRad(this._angle);
-    var height = BEAM_TOP_RADIUS / Math.tan(angle) + BEAM_LENGTH;
-    var radius = Math.tan(angle) * height;
+    const angle = MovingHead.degToRad(this._angle);
+    const height = BEAM_TOP_RADIUS / Math.tan(angle) + BEAM_LENGTH;
+    const radius = Math.tan(angle) * height;
     return radius;
   }
 
   /**
    * Vertex scaling factor used for angle definition through vertex transformation
-   * 
+   *
    * @type {Number}
    * @todo check if it is used
    * @private
@@ -585,7 +578,7 @@ class MovingHead {
 
   /**
    * Moving Head position in 3D space
-   * 
+   *
    * @type {Object}
    */
   get position() {
@@ -594,7 +587,7 @@ class MovingHead {
 
   /**
    * Moving Head rotaition in 3D space
-   * 
+   *
    * @type {Object}
    */
   get rotation() {
@@ -603,17 +596,16 @@ class MovingHead {
 
   /**
    * Beam strobe frequency in HZ
-   * 
+   *
    * @type {Number}
    */
   get strobeFrequency() {
     return this._strobeFrequency;
   }
 
-
   /**
    * Beam instance highlighting state
-   * 
+   *
    * @type {Boolean}
    * @private
    */
@@ -630,9 +622,9 @@ class MovingHead {
   }
 
   set zoom(zoomValue) {
-    let angle = this._maxAngle * (zoomValue / 100);
-    let clampedAngleValue = Math.min(angle / 2, BEAM_MAX_ANGLE);
-    this._angle = clampedAngleValue
+    const angle = this._maxAngle * (zoomValue / 100);
+    const clampedAngleValue = Math.min(angle / 2, BEAM_MAX_ANGLE);
+    this._angle = clampedAngleValue;
     this._spotLight.angle = MovingHead.degToRad(this._angle);
     angle_buffer_attribute.setY(this._id, 1.0);
     angle_buffer_attribute.setX(this._id, this._angle);
@@ -644,9 +636,9 @@ class MovingHead {
   }
 
   set angle(angle) {
-    let clampedAngleValue = Math.min(angle / 2, BEAM_MAX_ANGLE);
+    const clampedAngleValue = Math.min(angle / 2, BEAM_MAX_ANGLE);
     if (clampedAngleValue != this._angle) {
-      this._angle = clampedAngleValue
+      this._angle = clampedAngleValue;
       this._spotLight.angle = MovingHead.degToRad(this.angle);
       angle_buffer_attribute.setY(this._id, 1.0);
       angle_buffer_attribute.setX(this._id, this.angle);
@@ -658,12 +650,12 @@ class MovingHead {
 
   /**
    * Color wheel slot value
-   * 
+   *
    * @type {Number}
    */
   set colorWheelSlot(slotId) {
     if (this._colorWheel.length && slotId < this._colorWheel.length) {
-      let slotValue = this._colorWheel[slotId];
+      const slotValue = this._colorWheel[slotId];
       if (slotValue.type == SLOT_TYPES.COLOR) {
         this.color = slotValue.colors ? slotValue.colors[0] : 'white';
       } else if (slotValue.type == SLOT_TYPES.OPEN) {
@@ -680,7 +672,7 @@ class MovingHead {
 
   /**
    * Color preset slot value
-   * 
+   *
    * @type {Number}
    */
   set colorPreset(value) {
@@ -702,24 +694,24 @@ class MovingHead {
   /**
    * Bulb/Beam color temperature in Kelvin
    * props to:  http://www.tannerhelland.com/4435/convert-temperature-rgb-algorithm-code/
-   * 
+   *
    * @type {Number}
    */
   set colorTemp(colorTemp = DEFAULT_COLOR_TEMP) {
-    var temp = colorTemp / 100;
-    var rgbData = [0, 0, 0]
+    const temp = colorTemp / 100;
+    let rgbData = [0, 0, 0];
     if (temp <= 66) {
       rgbData = [
         255,
         99.4708025861 * Math.log(temp) - 161.1195681661,
-        temp <= 19 ? 0 : 138.5177312231 * Math.log(temp - 10) - 305.0447927307
-      ]
+        temp <= 19 ? 0 : 138.5177312231 * Math.log(temp - 10) - 305.0447927307,
+      ];
     } else {
       rgbData = [
-        329.698727446 * Math.pow(temp - 60, -0.1332047592),
-        288.1221695283 * Math.pow(temp - 60, -0.0755148492),
-        255
-      ]
+        329.698727446 * (temp - 60) ** -0.1332047592,
+        288.1221695283 * (temp - 60) ** -0.0755148492,
+        255,
+      ];
     }
     this._colorTemp = colorTemp;
     this.color = `rgb(
@@ -731,29 +723,29 @@ class MovingHead {
 
   /**
    * Single color-chanel intensity value (RGBCMY...)
-   * 
+   *
    * @type {Object}
    */
   set colorIntensity(channelData) {
     if (!this._activeColorPreset) {
-      let color_tmp = this.color;
-      let channel = channelData.color.toLowerCase().charAt(0);
+      const color_tmp = this.color;
+      const channel = channelData.color.toLowerCase().charAt(0);
       switch (channel) {
-        case "r":
-        case "g":
-        case "b":
+        case 'r':
+        case 'g':
+        case 'b':
           color_tmp[channel] = Math.max(channelData.colorBrightness, 0.00001);
           this.color = color_tmp;
           break;
-        case "c":
+        case 'c':
           color_tmp.r = Math.max(1.0 - channelData.colorBrightness, 0.00001);
           this.color = color_tmp;
           break;
-        case "m":
+        case 'm':
           color_tmp.g = Math.max(1.0 - channelData.colorBrightness, 0.00001);
           this.color = color_tmp;
           break;
-        case "y":
+        case 'y':
           color_tmp.b = Math.max(1.0 - channelData.colorBrightness, 0.00001);
           this.color = color_tmp;
           break;
@@ -798,7 +790,7 @@ class MovingHead {
       positionVector.x,
       positionVector.y,
       // positionVector.z
-      Math.max(positionVector.z, 0.51)
+      Math.max(positionVector.z, 0.51),
     );
     this._matrixNeedsUpdate = true;
   }
@@ -808,7 +800,7 @@ class MovingHead {
     this._dummy.rotation.set(
       rotationVector.x,
       rotationVector.y,
-      rotationVector.z
+      rotationVector.z,
     );
     this._matrixNeedsUpdate = true;
   }
@@ -826,9 +818,9 @@ class MovingHead {
    * @memberof MovingHead
    */
   setSinglyHighlighted(state) {
-    instances.forEach(instance => {
-      instance.highlighted = false
-    })
+    instances.forEach((instance) => {
+      instance.highlighted = false;
+    });
     this.highlighted = state;
   }
 
@@ -851,12 +843,11 @@ class MovingHead {
       SPOTLIGHT_PHYSICALLY_CORRECT_DISTANCE,
       MovingHead.degToRad(this.angle),
       SPOTLIGHT_PHYSICALLY_CORRECT_PENUMBRA,
-      SPOTLIGHT_PHYSICALLY_CORRECT_DECAY
-    )
+      SPOTLIGHT_PHYSICALLY_CORRECT_DECAY,
+    );
 
-
-    this._spotLight.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2))
-    this._spotLight.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, .9))
+    this._spotLight.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+    this._spotLight.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, 0.9));
 
     this._dummy.add(this._yokeDummy);
 
@@ -864,7 +855,6 @@ class MovingHead {
     this._headDummy.attach(this._beamDummy);
     this._beamDummy.attach(this._targetDummy);
     this._beamDummy.attach(this._spotLight);
-
 
     this._spotLight.target = this._targetDummy;
 
@@ -875,17 +865,16 @@ class MovingHead {
     capMesh.count = instanceCount;
     boxHelperMesh.count = 0;
 
-    scene_handle.add(this._dummy)
+    scene_handle.add(this._dummy);
 
     instances.push(this);
 
     this._matrixNeedsUpdate = true;
-
   }
 
   /**
    * Updates the Moving Head instance and childs matrixworld
-   * 
+   *
    * @private
    */
   updateMatrix() {
@@ -920,7 +909,6 @@ class MovingHead {
   }
 
   updateStrobe(t) {
-
     if (this._strobeFrequency > 0.0) {
       this._shutter = Math.sin(2.0 * Math.PI * this._strobeFrequency * t) > 0.0 ? SHUTTER_VALUE.OPEN : SHUTTER_VALUE.CLOSED;
     } else {
@@ -943,18 +931,17 @@ class MovingHead {
   }
 
   static prepareModelInstance() {
+    const model = ModelInstancer.models.visualizer.models.scenography.beam.scene.children[0];
+    const base = model.children[0];
+    const yoke = model.children[2];
+    const head = model.children[1];
 
-    let model = ModelInstancer.models.visualizer.models.scenography.beam.scene.children[0];
-    let base = model.children[0];
-    let yoke = model.children[2];
-    let head = model.children[1];
+    base.geometry.rotateX(Math.PI / 2);
+    yoke.geometry.rotateX(Math.PI / 2);
+    head.geometry.rotateX(Math.PI / 2);
 
-    base.geometry.rotateX(Math.PI / 2)
-    yoke.geometry.rotateX(Math.PI / 2)
-    head.geometry.rotateX(Math.PI / 2)
-
-    base.geometry.translate(0, 0, -.5)
-    yoke.geometry.translate(0, 0, -.40)
+    base.geometry.translate(0, 0, -0.5);
+    yoke.geometry.translate(0, 0, -0.40);
 
     THREE.BufferGeometry.prototype.copy.call(baseGeo, base.geometry);
     THREE.BufferGeometry.prototype.copy.call(yokeGeo, yoke.geometry);
@@ -979,33 +966,29 @@ class MovingHead {
     baseMesh.instanceMatrix.needsUpdate = true;
     yokeMesh.instanceMatrix.needsUpdate = true;
     headMesh.instanceMatrix.needsUpdate = true;
-
   }
 
   static prepareBeamInstance() {
-
-    let beamGeometry = new THREE.CylinderGeometry(
+    const beamGeometry = new THREE.CylinderGeometry(
       BEAM_TOP_RADIUS,
       BEAM_TOP_RADIUS,
       BEAM_LENGTH,
       BEAM_RESOLUTION,
       BEAM_SEGMENTS,
-      true
+      true,
     );
 
     beamGeometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, -beamGeometry.parameters.height / 2, 0));
     beamGeometry.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
-    beamGeometry.applyMatrix4(new THREE.Matrix4().setPosition(0, 0, .258));
+    beamGeometry.applyMatrix4(new THREE.Matrix4().setPosition(0, 0, 0.258));
 
     THREE.BufferGeometry.prototype.copy.call(beamGeo, beamGeometry);
 
-    var verticesIndexBuffer = [];
+    const verticesIndexBuffer = [];
     for (let i = 0; i < beamGeo.attributes.position.count; i++) {
-      verticesIndexBuffer[i] = i
+      verticesIndexBuffer[i] = i;
     }
-    var indexAttributes = new THREE.BufferAttribute(
-      new Float32Array(verticesIndexBuffer), 1
-    ).setUsage(THREE.StaticDrawUsage);
+    const indexAttributes = new THREE.BufferAttribute(new Float32Array(verticesIndexBuffer), 1).setUsage(THREE.StaticDrawUsage);
 
     beamGeo.setAttribute('index', indexAttributes);
     beamGeo.setAttribute('wpos', position_buffer_attribute);
@@ -1027,45 +1010,45 @@ class MovingHead {
       dithering: false,
       uniforms: {
         cameraDir: {
-          type: "v3",
-          value: vector_cam
+          type: 'v3',
+          value: vector_cam,
         },
         cameraPos: {
-          type: "v3",
-          value: vector_cam_pos
+          type: 'v3',
+          value: vector_cam_pos,
         },
         vertexCount: {
-          type: "f",
-          value: beamGeo.attributes.position.count
+          type: 'f',
+          value: beamGeo.attributes.position.count,
         },
         topRadius: {
-          type: "f",
-          value: BEAM_TOP_RADIUS
+          type: 'f',
+          value: BEAM_TOP_RADIUS,
         },
         length: {
-          type: "f",
-          value: BEAM_LENGTH
+          type: 'f',
+          value: BEAM_LENGTH,
         },
         time: {
-          type: "f",
-          value: 0.0
+          type: 'f',
+          value: 0.0,
         },
         fogState: {
-          type: "b",
-          value: true
+          type: 'b',
+          value: true,
         },
         fogFactor: {
-          type: "f",
-          value: 1.0
+          type: 'f',
+          value: 1.0,
         },
         fogTurbulence: {
-          type: "f",
-          value: 1.0
+          type: 'f',
+          value: 1.0,
         },
         glowFactor: {
-          type: "f",
-          value: 1.0
-        }
+          type: 'f',
+          value: 1.0,
+        },
       },
     }), MAX_INSTANCES);
 
@@ -1073,17 +1056,15 @@ class MovingHead {
     beamMesh.frustumCulled = true;
     beamMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     beamMesh.instanceMatrix.needsUpdate = true;
-
   }
 
   static prepareCapInstance() {
+    const capGeometry = new THREE.CircleGeometry(BEAM_TOP_RADIUS, 40);
+    const capMaterial = new THREE.MeshBasicMaterial({
+      side: THREE.DoubleSide,
+    });
 
-    let capGeometry = new THREE.CircleGeometry(BEAM_TOP_RADIUS, 40);
-    let capMaterial = new THREE.MeshBasicMaterial({
-      side: THREE.DoubleSide
-    })
-
-    capGeometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, .255));
+    capGeometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, 0.255));
 
     THREE.BufferGeometry.prototype.copy.call(targetGeo, capGeometry);
 
@@ -1092,19 +1073,17 @@ class MovingHead {
     capMesh.instanceCount = instanceCount;
     capMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     capMesh.instanceMatrix.needsUpdate = true;
-
   }
 
   static prepareBoxHelperInstance() {
-
-    let boxHelperGeometry = new THREE.BoxGeometry(1, 1, 1);
-    let boxHelperMaterial = new THREE.MeshBasicMaterial({
+    const boxHelperGeometry = new THREE.BoxGeometry(1, 1, 1);
+    const boxHelperMaterial = new THREE.MeshBasicMaterial({
       side: THREE.BackSide,
       wireframe: true,
       color: 'rgb(30, 69, 185)',
       transparent: true,
-      opacity: .5,
-    })
+      opacity: 0.5,
+    });
 
     boxHelperGeometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, -0.15));
 
@@ -1115,7 +1094,6 @@ class MovingHead {
     boxHelperMesh.instanceCount = instanceCount;
     boxHelperMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     boxHelperMesh.instanceMatrix.needsUpdate = true;
-
   }
 
   static prepareInstanciation(camera, scene) {
@@ -1130,9 +1108,9 @@ class MovingHead {
   }
 
   static update(t) {
-    instances.forEach(instance => {
+    instances.forEach((instance) => {
       instance.update(t);
-    })
+    });
     beamMesh.material.uniforms.time.value = t;
     camera_handle.getWorldDirection(vector_cam.normalize());
     beamMesh.material.uniforms.cameraDir.value = vector_cam;
@@ -1147,7 +1125,7 @@ class MovingHead {
     scene_handle.remove(instance._spotLight);
     scene_handle.remove(instance._dummy);
 
-    instances.splice(instance.id, 1)
+    instances.splice(instance.id, 1);
     for (let i = instance.id; i < instanceCount - 1; i++) {
       instances[i].id--;
     }
@@ -1160,7 +1138,6 @@ class MovingHead {
     beamMesh.count = instanceCount;
     capMesh.count = instanceCount;
     boxHelperMesh.count = 0;
-
   }
 
   static getBA() {
@@ -1180,7 +1157,7 @@ class MovingHead {
   }
 
   static set fogState(value) {
-    beamMesh.material.uniforms.fogState.value = value
+    beamMesh.material.uniforms.fogState.value = value;
   }
 
   static set fogDensity(value) {
@@ -1190,8 +1167,6 @@ class MovingHead {
   static set fogTurbulence(value) {
     beamMesh.material.uniforms.fogTurbulence.value = value;
   }
-
-
 }
 
 export default MovingHead;

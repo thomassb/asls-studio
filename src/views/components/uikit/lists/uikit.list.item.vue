@@ -1,6 +1,5 @@
 <template>
   <div
-    @click="(e)=>$emit('click',e)"
     class="uikit_list_item"
     :class="{
       highlighted: highlighted && !noHighlight,
@@ -14,26 +13,52 @@
       tall: tall,
       noSelect: noSelect,
     }"
+    @click="(e)=>$emit('click',e)"
   >
-    <uk-checkbox v-model="toggled" :disabled="value.disabled" style="margin-right: 16px" v-if="toggleable" />
-    <span class="uikit_list_item_colored_dot" :style="{ backgroundColor: value.color }" v-if="!value.icon && colored && value.color" />
-    <uk-icon class="uikit_list_item_icon" v-if="value.icon" :name="value.icon" />
+    <uk-checkbox
+      v-if="toggleable"
+      v-model="toggled"
+      :disabled="value.disabled"
+      style="margin-right: 16px"
+    />
+    <span
+      v-if="!value.icon && colored && value.color"
+      class="uikit_list_item_colored_dot"
+      :style="{ backgroundColor: value.color }"
+    />
+    <uk-icon
+      v-if="value.icon"
+      class="uikit_list_item_icon"
+      :name="value.icon"
+    />
     <h4>{{ value.name }}</h4>
     <div style="flex: 1" />
-    <h4 class="uikit_list_item_more" v-if="value.more">{{ value.more }}</h4>
-    <uk-icon v-if="value.unfold" class="uikit_list_item_icon_small" :name="unfolded ? 'arrow_up' : 'arrow_down'" />
-    <uk-icon v-if="deletable" class="uikit_list_item_icon_small" name="cross" />
+    <h4
+      v-if="value.more"
+      class="uikit_list_item_more"
+    >
+      {{ value.more }}
+    </h4>
+    <uk-icon
+      v-if="value.unfold"
+      class="uikit_list_item_icon_small"
+      :name="unfolded ? 'arrow_up' : 'arrow_down'"
+    />
+    <uk-icon
+      v-if="deletable"
+      class="uikit_list_item_icon_small"
+      name="cross"
+    />
   </div>
 </template>
 
 <script>
 export default {
-  name: "ukListItem",
+  name: 'UkListItem',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,
   },
-  emits: ['click'],
   props: {
     /**
      * Handle to the list item
@@ -76,6 +101,7 @@ export default {
      */
     empty: Boolean,
   },
+  emits: ['click'],
   data() {
     return {
       /**

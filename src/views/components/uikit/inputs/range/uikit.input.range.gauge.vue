@@ -1,21 +1,25 @@
 <template>
   <div class="uikit_gauge">
-    <div class="label" style="margin-bottom: 10px" v-if="label != null">
+    <div
+      v-if="label != null"
+      class="label"
+      style="margin-bottom: 10px"
+    >
       {{ label }}
     </div>
     <div class="uikit_gauge_wrapper">
       <input
-        class="uikit_gauge_slider"
-        @mousedown="propagateMD()"
-        @mouseup="propagateMU()"
         ref="track"
         v-model="content"
+        class="uikit_gauge_slider"
         type="range"
         :min="min"
         :max="max"
-        v-on:input="updateValue"
         :disabled="disabled"
-      />
+        @mousedown="propagateMD()"
+        @mouseup="propagateMU()"
+        @input="updateValue"
+      >
     </div>
   </div>
 </template>
@@ -28,12 +32,11 @@
  * @story Disabled {"disabled":true}
  */
 export default {
-  name: "ukGauge",
+  name: 'UkGauge',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,
   },
-  emits:['update:modelValue','input'],
   props: {
     /**
      * The gauge's text label value
@@ -60,6 +63,7 @@ export default {
      */
     modelValue: Number,
   },
+  emits: ['update:modelValue', 'input'],
   data() {
     return {
       /**
@@ -68,6 +72,17 @@ export default {
       content: this.modelValue,
     };
   },
+  watch: {
+    modelValue(newValue) {
+      this.content = newValue;
+    },
+    background(newVal) {
+      this.$refs.track.style.background = newVal;
+    },
+  },
+  mounted() {
+    this.$refs.track.style.background = this.background;
+  },
   methods: {
     /**
      * Propagates mousedown event to parent element
@@ -75,7 +90,7 @@ export default {
      *
        */
     propagateMD() {
-      this.$emit("mousedown", null);
+      this.$emit('mousedown', null);
     },
     /**
     /**
@@ -84,7 +99,7 @@ export default {
      *
        */
     propagateMU() {
-      this.$emit("mouseup", null);
+      this.$emit('mouseup', null);
     },
     /**
      * Updates the gauge's value
@@ -98,19 +113,8 @@ export default {
        *
        * @property {Number} content the gauge's actual value
        */
-      this.$emit("update:modelValue", parseInt(this.content));
-      this.$emit("input", parseInt(this.content));
-    },
-  },
-  mounted() {
-    this.$refs.track.style.background = this.background;
-  },
-  watch: {
-    modelValue: function (newValue) {
-      this.content = newValue;
-    },
-    background: function (newVal) {
-      this.$refs.track.style.background = newVal;
+      this.$emit('update:modelValue', parseInt(this.content));
+      this.$emit('input', parseInt(this.content));
     },
   },
 };

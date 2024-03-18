@@ -1,15 +1,20 @@
 <template>
-  <uk-widget class="modifier_widget_fixture_pool" :header="header" dockable :action="action">
+  <uk-widget
+    class="modifier_widget_fixture_pool"
+    :header="header"
+    dockable
+    :action="action"
+  >
     <uk-list
+      v-if="pool"
       class="modifier_widget_fixture_pool_body"
       filterable
       deletable
       draggable
       auto-select-first
       :auto-select="autoSelect"
-      v-if="pool"
       :items="pool.listable"
-      :preventUnfocus="preventUnfocus"
+      :prevent-unfocus="preventUnfocus"
       @select="selectFixture"
       @delete="deleteFixtures"
       @highlight="highlightFixtures"
@@ -28,12 +33,11 @@
  * @todo find a way to either improve or remove this component
  */
 export default {
-  name: "modifierWidgetFixturePool",
+  name: 'ModifierWidgetFixturePool',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,
   },
-  emits:["select", "delete", "highlight", "focused"],
   props: {
     /**
      * Handle to fixture pool
@@ -55,16 +59,21 @@ export default {
       default: () => [],
     },
   },
+  emits: ['select', 'delete', 'highlight', 'focused'],
   data() {
     return {
       /**
        * Widget header data
        */
       header: {
-        title: "Fixture Pool",
-        icon: "patch",
+        title: 'Fixture Pool',
+        icon: 'patch',
       },
     };
+  },
+  mounted() {
+    const visualizerEl = document.getElementById('visualizer');
+    this.preventUnfocus.push(...[visualizerEl]);
   },
   methods: {
     /**
@@ -76,7 +85,7 @@ export default {
     selectFixture(fixture) {
       fixture = this.pool.getFromId(fixture.id);
       fixture.highlightSingle(true, true);
-      this.$emit("select", fixture.id);
+      this.$emit('select', fixture.id);
     },
     /**
      * Forwards fixture deletion event
@@ -85,7 +94,7 @@ export default {
      * @param {Array} fixtures Array of references to fixture defintion object
      */
     deleteFixtures(fixtures) {
-      this.$emit("delete", fixtures);
+      this.$emit('delete', fixtures);
     },
     /**
      * Highlights and forwards fixture highlighting event
@@ -95,10 +104,10 @@ export default {
      */
     highlightFixtures(fixtures) {
       fixtures.forEach((fixtureData) => {
-        let fixture = this.pool.getFromId(fixtureData.id);
+        const fixture = this.pool.getFromId(fixtureData.id);
         fixture.highlight(true, true);
       });
-      this.$emit("highlight", fixtures);
+      this.$emit('highlight', fixtures);
     },
     /**
      * Forwards list focus event
@@ -108,11 +117,11 @@ export default {
      */
     setFocus(state) {
       if (!state) {
-        if(this.pool && this.pool.fixtures.length){
-          this.pool.fixtures[0].highlightSingle(false, true)
+        if (this.pool && this.pool.fixtures.length) {
+          this.pool.fixtures[0].highlightSingle(false, true);
         }
       }
-      this.$emit("focused", state);
+      this.$emit('focused', state);
     },
     /**
      * Reorder list items
@@ -126,10 +135,6 @@ export default {
       this.pool.moveItem(reorderData.original, reorderData.final);
     },
   },
-  mounted() {
-    let visualizerEl = document.getElementById("visualizer");
-    this.preventUnfocus.push(...[visualizerEl]);
-  }
 };
 </script>
 

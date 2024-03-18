@@ -1,15 +1,36 @@
 <template>
-  <uk-popup @submit="close" :onCancel="resetInitialValues" @input="update()" v-model="state" :header="headerData">
-    <uk-flex v-if="$show.visualizerHandle" class="body" :gap="8" col>
-      <uk-flex :gap="8" center-h>
-        <uk-icon class="title_icon" name="fog" />
+  <uk-popup
+    v-model="state"
+    :on-cancel="resetInitialValues"
+    :header="headerData"
+    @submit="close"
+    @input="update()"
+  >
+    <uk-flex
+      v-if="$show.visualizerHandle"
+      class="body"
+      :gap="8"
+      col
+    >
+      <uk-flex
+        :gap="8"
+        center-h
+      >
+        <uk-icon
+          class="title_icon"
+          name="fog"
+        />
         <h3>Fogging</h3>
       </uk-flex>
-      <p class="subtitle">Global scene fogging settings.</p>
+      <p class="subtitle">
+        Global scene fogging settings.
+      </p>
       <uk-flex center-h>
         <div>
           <h4>State:</h4>
-          <p class="subtitle">Turn global scene fogging on/off</p>
+          <p class="subtitle">
+            Turn global scene fogging on/off
+          </p>
         </div>
         <uk-spacer />
         <uk-select-input
@@ -17,65 +38,106 @@
           :min="0"
           :max="100"
           style="width: 100px"
-          :modelValue="0"
+          :model-value="0"
           :options="['disabled', 'enabled']"
         />
       </uk-flex>
       <uk-flex center-h>
         <div>
           <h4>Density:</h4>
-          <p class="subtitle">Sets the global scene fog density amount.</p>
+          <p class="subtitle">
+            Sets the global scene fog density amount.
+          </p>
         </div>
         <uk-spacer />
-        <uk-num-input v-model="$show.visualizerHandle.globalFoggingDensity" :min="0" :max="100" style="width: 70px" />
+        <uk-num-input
+          v-model="$show.visualizerHandle.globalFoggingDensity"
+          :min="0"
+          :max="100"
+          style="width: 70px"
+        />
       </uk-flex>
       <uk-flex center-h>
         <div>
           <h4>Turbulence:</h4>
-          <p class="subtitle">Sets fog turbulence behavior over time.</p>
+          <p class="subtitle">
+            Sets fog turbulence behavior over time.
+          </p>
         </div>
         <uk-spacer />
-        <uk-num-input v-model="$show.visualizerHandle.globalFoggingTurbulences" :min="0" :max="100" style="width: 70px" />
+        <uk-num-input
+          v-model="$show.visualizerHandle.globalFoggingTurbulences"
+          :min="0"
+          :max="100"
+          style="width: 70px"
+        />
       </uk-flex>
       <div class="separator" />
-      <uk-flex :gap="8" center-h>
-        <uk-icon class="title_icon" name="bulb" />
+      <uk-flex
+        :gap="8"
+        center-h
+      >
+        <uk-icon
+          class="title_icon"
+          name="bulb"
+        />
         <h3>Lighting</h3>
       </uk-flex>
-      <p class="subtitle">Lighting emulation settings.</p>
+      <p class="subtitle">
+        Lighting emulation settings.
+      </p>
       <uk-flex center-h>
         <div>
           <h4>Global Brightness:</h4>
-          <p class="subtitle">Global scene brightness.</p>
+          <p class="subtitle">
+            Global scene brightness.
+          </p>
         </div>
         <uk-spacer />
-        <uk-num-input v-model="$show.visualizerHandle.globalBrightness" :min="25" :max="100" style="width: 70px" />
+        <uk-num-input
+          v-model="$show.visualizerHandle.globalBrightness"
+          :min="25"
+          :max="100"
+          style="width: 70px"
+        />
       </uk-flex>
       <uk-flex center-h>
         <div>
           <h4>Volumetrics:</h4>
-          <p class="subtitle">Volumetrics emulation mode</p>
+          <p class="subtitle">
+            Volumetrics emulation mode
+          </p>
         </div>
         <uk-spacer />
-        <uk-select-input style="width: 100px" :modelValue="0" :options="['high', 'medium', 'low', 'disabled']" />
+        <uk-select-input
+          style="width: 100px"
+          :model-value="0"
+          :options="['high', 'medium', 'low', 'disabled']"
+        />
       </uk-flex>
       <uk-flex center-h>
         <div>
           <h4>Light Sources:</h4>
-          <p class="subtitle">Light sources emulation settings</p>
+          <p class="subtitle">
+            Light sources emulation settings
+          </p>
         </div>
         <uk-spacer />
-        <uk-select-input style="width: 100px" :modelValue="0" :options="['enabled', 'disabled']" />
+        <uk-select-input
+          style="width: 100px"
+          :model-value="0"
+          :options="['enabled', 'disabled']"
+        />
       </uk-flex>
     </uk-flex>
   </uk-popup>
 </template>
 
 <script>
-import PopupMixin from "@/views/mixins/popup.mixin.js";
+import PopupMixin from '@/views/mixins/popup.mixin.js';
 
 export default {
-  name: "visualizerPopup",
+  name: 'VisualizerPopup',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,
@@ -86,13 +148,25 @@ export default {
       /**
        * Popup header data
        */
-      headerData: { title: "Visualizer settings" },
+      headerData: { title: 'Visualizer settings' },
     };
+  },
+  watch: {
+    state(state) {
+      if (state && !this.initialValues && this.$show.visualizerHandle) {
+        this.initialValues = this.$show.visualizerHandle.showData;
+      }
+    },
+  },
+  mounted() {
+    if (!this.initialValues && this.$show.visualizerHandle) {
+      this.initialValues = this.$show.visualizerHandle.showData;
+    }
   },
   methods: {
     /**
      * resets visualizer settings to initial values, prior to modifications
-     * 
+     *
        * @public
      */
     resetInitialValues() {
@@ -101,18 +175,6 @@ export default {
       this.$show.visualizerHandle.globalFoggingTurbulences = this.initialValues.globalFoggingTurbulences;
       this.$show.visualizerHandle.globalBrightness = this.initialValues.globalBrightness;
       this.close();
-    },
-  },
-  mounted() {
-    if (!this.initialValues && this.$show.visualizerHandle) {
-      this.initialValues = this.$show.visualizerHandle.showData;
-    }
-  },
-  watch: {
-    state(state) {
-      if (state && !this.initialValues && this.$show.visualizerHandle) {
-        this.initialValues = this.$show.visualizerHandle.showData;
-      }
     },
   },
 };

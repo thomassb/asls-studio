@@ -1,5 +1,5 @@
 <template>
-<span></span>
+  <span />
   <!-- <component class="icon" :is="svgData"/> -->
 </template>
 
@@ -10,7 +10,7 @@
  * @story Default {"name":"new"}
  */
 export default {
-  name: "ukIcon",
+  name: "UkIcon",
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,
@@ -22,25 +22,24 @@ export default {
      */
     name: String,
   },
-  computed:{
+  computed: {
     /**
      * Dynamically requires SVG asset from local "./images" list.
-     * 
+     *
      * @property svgData
      */
-    svgData(){
-      try{
+    svgData() {
+      try {
         return require(`./images/${this.name}.svg`);
-      }catch(err){
-        return require('./images/close.svg');
+      } catch (err) {
+        return require("./images/close.svg");
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style scoped>
-
 .icon {
   width: 16px;
   height: 16px;

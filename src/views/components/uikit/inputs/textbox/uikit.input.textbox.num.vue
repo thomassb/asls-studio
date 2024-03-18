@@ -1,31 +1,56 @@
 <template>
-  <div class="uikit_num_input" :class="{ disabled: disabled }">
-    <div :class="{ disabled }" class="label" v-if="label">
+  <div
+    class="uikit_num_input"
+    :class="{ disabled: disabled }"
+  >
+    <div
+      v-if="label"
+      :class="{ disabled }"
+      class="label"
+    >
       {{ label }}
     </div>
-    <div class="uikit_num_input_textbox_wrapper" :style="{ borderColor: !disabled ? color : '' }">
+    <div
+      class="uikit_num_input_textbox_wrapper"
+      :style="{ borderColor: !disabled ? color : '' }"
+    >
       <input
+        v-model="content"
         class="uikit_num_input_textbox"
+        :disabled="disabled"
+        :placeholder="placeholder"
         @keydown.up="incrementValue"
         @keydown.down="decrementValue"
         @keydown.stop
         @blur="updateValue"
         @keydown.enter="updateValue"
-        :disabled="disabled"
-        :placeholder="placeholder"
         @input="
           (v) => {
             if (autoUpdate) updateValue(v);
           }
         "
-        v-model="content"
-      />
-      <span class="uikit_num_input_button" :style="{ backgroundColor: !disabled ? color : '' }">
-        <span class="uikit_num_input_button_section" @click="incrementValue()">
-          <uk-icon class="uikit_num_input_button_icon" name="arrow_up" />
+      >
+      <span
+        class="uikit_num_input_button"
+        :style="{ backgroundColor: !disabled ? color : '' }"
+      >
+        <span
+          class="uikit_num_input_button_section"
+          @click="incrementValue()"
+        >
+          <uk-icon
+            class="uikit_num_input_button_icon"
+            name="arrow_up"
+          />
         </span>
-        <span class="uikit_num_input_button_section" @click="decrementValue()">
-          <uk-icon class="uikit_num_input_button_icon" name="arrow_down" />
+        <span
+          class="uikit_num_input_button_section"
+          @click="decrementValue()"
+        >
+          <uk-icon
+            class="uikit_num_input_button_icon"
+            name="arrow_down"
+          />
         </span>
       </span>
     </div>
@@ -40,7 +65,7 @@
  * @story Default {"value": 10, "label":"default", "min": 0, "max":100}
  */
 export default {
-  name: "ukNumInput",
+  name: 'UkNumInput',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,
@@ -91,7 +116,7 @@ export default {
      */
     color: {
       type: String,
-      default: "var(--secondary-dark)",
+      default: 'var(--secondary-dark)',
     },
     /**
      * Whether value should be automatically updated on each keystroke or not
@@ -102,6 +127,7 @@ export default {
       default: false,
     },
   },
+  emits: ['update:modelValue', 'input'],
   data() {
     return {
       /**
@@ -110,16 +136,32 @@ export default {
       content: this.modelValue.toFixed(this.precision),
     };
   },
+  watch: {
+    modelValue(value) {
+      this.content = parseFloat(value);
+      this.updateValue(false);
+    },
+  },
+  beforeMount() {
+    if (this.default != null) {
+      this.updateValue();
+    }
+    if (this.label == null) {
+      this.hasLabel = false;
+    } else {
+      this.hasLabel = true;
+    }
+  },
   methods: {
     /**
      * Increments actual value by one precision unit.
      *
      */
     incrementValue() {
-      let increment = parseFloat(this.content) + parseFloat(Math.pow(10, -this.precision));
+      const increment = parseFloat(this.content) + parseFloat(10 ** -this.precision);
       if (increment <= this.max && !this.disabled) {
         this.content = increment.toFixed(this.precision);
-        this.$emit("input", parseFloat(this.content));
+        this.$emit('input', parseFloat(this.content));
       }
     },
     /**
@@ -127,10 +169,10 @@ export default {
      *
      */
     decrementValue() {
-      let decrement = parseFloat(this.content) - parseFloat(Math.pow(10, -this.precision));
+      const decrement = parseFloat(this.content) - parseFloat(10 ** -this.precision);
       if (decrement >= this.min && !this.disabled) {
         this.content = decrement.toFixed(this.precision);
-        this.$emit("input", parseFloat(this.content));
+        this.$emit('input', parseFloat(this.content));
       }
     },
     /**
@@ -139,7 +181,7 @@ export default {
      * @param {Boolean} doEmit whether or not to emit changes back to parent element.
      */
     updateValue(doEmit = true) {
-      var val = parseFloat(this.content).toFixed(this.precision);
+      const val = parseFloat(this.content).toFixed(this.precision);
       this.content = val;
       if (val < this.min || isNaN(val)) {
         this.content = parseFloat(this.min >= 0 ? this.min : 0).toFixed(this.precision);
@@ -152,26 +194,9 @@ export default {
          *
          * @property {Number} content Parsed and precision limited input value
          */
-        this.$emit("update:modelValue", parseFloat(Number(this.content).toFixed(this.precision)))
-        this.$emit("input", parseFloat(Number(this.content).toFixed(this.precision)));
+        this.$emit('update:modelValue', parseFloat(Number(this.content).toFixed(this.precision)));
+        this.$emit('input', parseFloat(Number(this.content).toFixed(this.precision)));
       }
-    },
-  },
-  emits:['update:modelValue','input'],
-  beforeMount() {
-    if (this.default != null) {
-      this.updateValue();
-    }
-    if (this.label == null) {
-      this.hasLabel = false;
-    } else {
-      this.hasLabel = true;
-    }
-  },
-  watch: {
-    modelValue: function (value) {
-      this.content = parseFloat(value);
-      this.updateValue(false);
     },
   },
 };

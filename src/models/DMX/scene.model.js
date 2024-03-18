@@ -1,40 +1,37 @@
-'use strict'
-
-import Cue from './cue.model.js'
-import Fade from './fade.model'
+import Cue from './cue.model.js';
+import Fade from './fade.model';
 
 /**
  * List of RGB color channels names as described in OFL-formated files
- * 
+ *
  * @constant {Array<String>} RGB_CHANNELS
  */
-const RGB_CHANNELS = ["Red", "Green", "Blue"];
+const RGB_CHANNELS = ['Red', 'Green', 'Blue'];
 /**
  * List of CMY color channels names as described in OFL-formated files
- * 
+ *
  * @constant {Array<String>} CMY_CHANNELS
  */
-const CMY_CHANNELS = ["Cyan", "Magenta", "Yellow"];
+const CMY_CHANNELS = ['Cyan', 'Magenta', 'Yellow'];
 /**
  * Enumeration of scene's running directions
- * 
+ *
  * @constant {Object} SCENE_DIRECTIONS
  * @enum {Number}
  */
 const SCENE_DIRECTIONS = {
   IN: 0,
-  OUT: 1
-}
+  OUT: 1,
+};
 
 /**
  * @class FixtureValue
- * @classdesc FixtureValues describe a set of preset channel values for a given fixture 
+ * @classdesc FixtureValues describe a set of preset channel values for a given fixture
  */
 class FixtureValue {
-
   /**
    * Creates an instance of FixtureValue.
-   * 
+   *
    * @param {Object} fixture handle to fixture instance
    * @param {Array<Number>} channelValues List of fixture's preset channel values
    */
@@ -51,74 +48,72 @@ class FixtureValue {
   set channelValues(channelValues) {
     this._quickChannelsAccessors = JSON.parse(JSON.stringify(this.fixture.quickChannelsAccessors));
     if (!channelValues.length) {
-      Object.keys(this._quickChannelsAccessors).map(channelType => {
-        let channels = this._quickChannelsAccessors[channelType];
-        channels.forEach(channel => {
+      Object.keys(this._quickChannelsAccessors).map((channelType) => {
+        const channels = this._quickChannelsAccessors[channelType];
+        channels.forEach((channel) => {
           channel.value = 0;
           channel.active = false;
-        })
-      })
+        });
+      });
     } else {
-      channelValues.forEach(cv => {
-        this.setQuickAccessor(cv)
-      })
+      channelValues.forEach((cv) => {
+        this.setQuickAccessor(cv);
+      });
     }
   }
-
 
   /**
    * Fixture's color channels values.
    * Only RGB color suppoprtded at the moment.
    * @todo Implement other color changer types (HSB...). Should do for the alpha
-   * 
+   *
    * @type {Array<Number>}
    */
   set color(rgbValue) {
     if (this.hasQuickAccessor({
-        type: "Color"
-      })) {
-      this.quickChannelsAccessors.Color.forEach(channel => {
+      type: 'Color',
+    })) {
+      this.quickChannelsAccessors.Color.forEach((channel) => {
         if (RGB_CHANNELS.includes(channel.color)) {
-          channel.value = rgbValue[RGB_CHANNELS.indexOf(channel.color)]
+          channel.value = rgbValue[RGB_CHANNELS.indexOf(channel.color)];
           channel.active = true;
-          this.setQuickAccessor(channel)
+          this.setQuickAccessor(channel);
         } else if (CMY_CHANNELS.includes(channel.color)) {
           channel.value = 255 - rgbValue[CMY_CHANNELS.indexOf(channel.color)];
           channel.active = true;
-          this.setQuickAccessor(channel)
+          this.setQuickAccessor(channel);
         }
-      })
+      });
     }
   }
 
   /**
    * Fixture's pan&tilt channels values (0-255)/(0-255)
-   * 
+   *
    * @type {Object}
    */
   set panTilt(value) {
     this.setQuickAccessor({
-      type: "Pan",
+      type: 'Pan',
       value: value.pan,
-      active: true
+      active: true,
     });
     this.setQuickAccessor({
-      type: "Tilt",
+      type: 'Tilt',
       value: value.tilt,
-      active: true
+      active: true,
     });
     this.setQuickAccessor({
-      type: "PanFine",
+      type: 'PanFine',
       value: value.panFine,
-      active: true
+      active: true,
     });
     this.setQuickAccessor({
-      type: "TiltFine",
+      type: 'TiltFine',
       value: value.tiltFine,
-      active: true
+      active: true,
     });
   }
-
 
   /**
    * list of quick channels accessors
@@ -131,34 +126,32 @@ class FixtureValue {
   }
 
   get channelValues() {
-    let channelValues = Object.keys(this._quickChannelsAccessors).map(channelType => {
-      let channels = this._quickChannelsAccessors[channelType];
-      return channels.map(channel => {
-        return {
-          id: channel.id,
-          type: channel.type,
-          value: channel.value,
-          active: channel.active,
-          color: channel.color,
-          qaIndex: channel.qaIndex
-        }
-      }).flat();
+    const channelValues = Object.keys(this._quickChannelsAccessors).map((channelType) => {
+      const channels = this._quickChannelsAccessors[channelType];
+      return channels.map((channel) => ({
+        id: channel.id,
+        type: channel.type,
+        value: channel.value,
+        active: channel.active,
+        color: channel.color,
+        qaIndex: channel.qaIndex,
+      })).flat();
     }).flat();
     return channelValues;
   }
 
   get color() {
-    let colorValues = [0, 0, 0]
+    const colorValues = [0, 0, 0];
     if (this.hasQuickAccessor({
-        type: "Color"
-      })) {
-      this.quickChannelsAccessors.Color.forEach(colorChannel => {
+      type: 'Color',
+    })) {
+      this.quickChannelsAccessors.Color.forEach((colorChannel) => {
         if (RGB_CHANNELS.includes(colorChannel.color)) {
-          colorValues[RGB_CHANNELS.indexOf(colorChannel.color)] = colorChannel.value
+          colorValues[RGB_CHANNELS.indexOf(colorChannel.color)] = colorChannel.value;
         } else if (CMY_CHANNELS.includes(colorChannel.color)) {
           colorValues[CMY_CHANNELS.indexOf(colorChannel.color)] = 255 - colorChannel.value;
         }
-      })
+      });
     }
     return colorValues;
   }
@@ -166,38 +159,37 @@ class FixtureValue {
   get panTilt() {
     return {
       pan: this.hasQuickAccessor({
-        type: "Pan"
+        type: 'Pan',
       }) ? this.getQuickAccessor({
-        type: 'Pan'
-      }).value : 0,
+          type: 'Pan',
+        }).value : 0,
       panFine: this.hasQuickAccessor({
-        type: "PanFine"
+        type: 'PanFine',
       }) ? this.getQuickAccessor({
-        type: "PanFine"
-      }).value : 0,
+          type: 'PanFine',
+        }).value : 0,
       tilt: this.hasQuickAccessor({
-        type: "Tilt"
+        type: 'Tilt',
       }) ? this.getQuickAccessor({
-        type: "Tilt"
-      }).value : 0,
+          type: 'Tilt',
+        }).value : 0,
       tiltFine: this.hasQuickAccessor({
-        type: "TiltFine"
+        type: 'TiltFine',
       }) ? this.getQuickAccessor({
-        type: "TiltFine"
-      }).value : 0,
-    }
+          type: 'TiltFine',
+        }).value : 0,
+    };
   }
-
 
   /**
    * Sets quick accessor activity and value
-   * 
+   *
    * @public
    * @param {Object} channel channel object
    */
   setQuickAccessor(channel) {
     if (this.hasQuickAccessor(channel)) {
-      let accessor = this.getQuickAccessor(channel);
+      const accessor = this.getQuickAccessor(channel);
       accessor.value = channel.value;
       accessor.active = channel.active;
       this.fixture.setChannel(accessor.id - 1, accessor.value);
@@ -206,18 +198,18 @@ class FixtureValue {
 
   /**
    * Checks if quick accessor exists
-   * 
+   *
    * @public
    * @param {Object} channel channel object
-   * @returns {Boolean} Whether the accesor exists or not 
+   * @returns {Boolean} Whether the accesor exists or not
    */
   hasQuickAccessor(channel) {
-    return this.quickChannelsAccessors[channel.type] != undefined && this.quickChannelsAccessors[channel.type][channel.qaIndex || 0] != undefined
+    return this.quickChannelsAccessors[channel.type] != undefined && this.quickChannelsAccessors[channel.type][channel.qaIndex || 0] != undefined;
   }
 
   /**
    * Returns quick accessor from channel
-   * 
+   *
    * @public
    * @param {Object} channel channel object
    * @returns {Object} handle to quick accessor
@@ -227,9 +219,7 @@ class FixtureValue {
       return this.quickChannelsAccessors[channel.type][channel.qaIndex || 0];
     }
   }
-
 }
-
 
 /**
  * @class Scene
@@ -238,10 +228,9 @@ class FixtureValue {
  * each with a set of preset values which will be set (gradually or not) on scene cue
  */
 class Scene extends Cue {
-
   /**
    * Creates an instance of Scene.
-   * 
+   *
    * @param {Object} sceneData Scene configuration object
    * @param {Object} sceneData.fadeIn Scene fadein configuration object
    * @param {Object} sceneData.fadeOut Scene fadeOUT configuration object
@@ -251,19 +240,21 @@ class Scene extends Cue {
    * @example let scene = new Scene({});
    */
   constructor(sceneData) {
-    super(sceneData)
+    super(sceneData);
     this.direction = SCENE_DIRECTIONS.IN;
     this.fixtures = sceneData.fixtures;
-    this.fixtureValues = sceneData.fixtureValues
-    this.fadeIn = new Fade(Object.assign({
+    this.fixtureValues = sceneData.fixtureValues;
+    this.fadeIn = new Fade({
       direction: 0,
       // duration: sceneData.duration
-    }, sceneData.fadeIn));
-    this.fadeOut = new Fade(Object.assign({
+      ...sceneData.fadeIn,
+    });
+    this.fadeOut = new Fade({
       direction: 1,
       // duration: sceneData.duration
-    }, sceneData.fadeOut));
-    this.duration = sceneData.duration
+      ...sceneData.fadeOut,
+    });
+    this.duration = sceneData.duration;
     return this.proxify(['time', 'deltaStart', 'animationId', 'state', '_state', 'DMXActivity']);
   }
 
@@ -274,9 +265,7 @@ class Scene extends Cue {
    */
   set fixtures(fixtures) {
     this._fixtures = fixtures;
-    this._fixtureValues = fixtures.map(fixture => {
-      return new FixtureValue(fixture, []);
-    })
+    this._fixtureValues = fixtures.map((fixture) => new FixtureValue(fixture, []));
   }
 
   /**
@@ -286,12 +275,12 @@ class Scene extends Cue {
    */
   set fixtureValues(fixtureValues) {
     if (fixtureValues && fixtureValues.length) {
-      fixtureValues.forEach(fv => {
-        let fixtureValue = this.getFixtureValueFromId(fv.fixture.id);
+      fixtureValues.forEach((fv) => {
+        const fixtureValue = this.getFixtureValueFromId(fv.fixture.id);
         if (fixtureValue) {
           fixtureValue.channelValues = fv.channelValues;
         }
-      })
+      });
     }
   }
 
@@ -310,13 +299,12 @@ class Scene extends Cue {
    * @type {Number}
    */
   set duration(duration) {
-    super.duration = duration
+    super.duration = duration;
     if (this.fadeIn) {
       this.fadeIn.duration = this.duration;
       this.fadeOut.duration = this.duration;
     }
   }
-
 
   /**
    * Scene's listable fixtures data
@@ -325,14 +313,12 @@ class Scene extends Cue {
    * @type {Array<Object>}
    */
   get listableFixtures() {
-    return this.fixtureValues.map(fixtureValue => {
-      return {
-        name: fixtureValue.fixture.name,
-        id: fixtureValue.fixture.id,
-        icon: 'movinghead',
-        more: `U${fixtureValue.fixture.universe}-CH${fixtureValue.fixture.chStart}`
-      }
-    })
+    return this.fixtureValues.map((fixtureValue) => ({
+      name: fixtureValue.fixture.name,
+      id: fixtureValue.fixture.id,
+      icon: 'movinghead',
+      more: `U${fixtureValue.fixture.universe}-CH${fixtureValue.fixture.chStart}`,
+    }));
   }
 
   /**
@@ -344,18 +330,16 @@ class Scene extends Cue {
   get showData() {
     return Object.assign(super.showData, {
       type: 0,
-      fixtures: this.fixtures.map(f => f.id),
-      fixtureValues: this.fixtureValues.map(fv => {
-        return {
-          fixture: {
-            id: fv.fixture.id
-          },
-          channelValues: fv.channelValues
-        }
-      }),
+      fixtures: this.fixtures.map((f) => f.id),
+      fixtureValues: this.fixtureValues.map((fv) => ({
+        fixture: {
+          id: fv.fixture.id,
+        },
+        channelValues: fv.channelValues,
+      })),
       fadeIn: this.fadeIn.showData,
-      fadeOut: this.fadeOut.showData
-    })
+      fadeOut: this.fadeOut.showData,
+    });
   }
 
   get fixtureValues() {
@@ -376,9 +360,9 @@ class Scene extends Cue {
 
   /**
    * Add a fixture to the scene's fixture pool
-   * 
+   *
    * @public
-   * @param {Object} fixture 
+   * @param {Object} fixture
    */
   addFixture(fixture) {
     this._fixtureValues.push(new FixtureValue(fixture, []));
@@ -393,7 +377,7 @@ class Scene extends Cue {
    * @todo Implement null check ?
    */
   getFixtureValueFromId(id) {
-    return this.fixtureValues.find(fixtureValue => fixtureValue.fixture.id === id);
+    return this.fixtureValues.find((fixtureValue) => fixtureValue.fixture.id === id);
   }
 
   /**
@@ -405,17 +389,17 @@ class Scene extends Cue {
    * @todo Implement null check ?
    */
   getFixtureFromId(id) {
-    return this.fixtures.find(fixture => fixture.id === id);
+    return this.fixtures.find((fixture) => fixture.id === id);
   }
 
   /**
    * Removes a fixture from the scene's fixture pool
-   * 
+   *
    * @public
-   * @param {Object} fixture 
+   * @param {Object} fixture
    */
   deleteFixture(fixture) {
-    let index = this.fixtureValues.findIndex(fixtureValue => fixtureValue.fixture.id == fixture.id);
+    const index = this.fixtureValues.findIndex((fixtureValue) => fixtureValue.fixture.id == fixture.id);
     if (index > -1) {
       this.fixtureValues.splice(index, 1);
     }
@@ -423,22 +407,22 @@ class Scene extends Cue {
 
   /**
    * Adds curent DMX channel values to every channelValue
-   * This is used when running scenes in relative mode so 
+   * This is used when running scenes in relative mode so
    * Transition from current value to preset value is smooth.
    *
    * @public
    */
   prepareStartValues() {
-    this.fixtureValues.forEach(fixtureValue => {
-      Object.keys(fixtureValue.quickChannelsAccessors).forEach(channelType => {
-        let channels = fixtureValue.quickChannelsAccessors[channelType];
-        channels.forEach(channel => {
+    this.fixtureValues.forEach((fixtureValue) => {
+      Object.keys(fixtureValue.quickChannelsAccessors).forEach((channelType) => {
+        const channels = fixtureValue.quickChannelsAccessors[channelType];
+        channels.forEach((channel) => {
           if (channel.active) {
             channel.startValue = fixtureValue.fixture.getQuickAccessor(channel).value.DMX;
           }
-        })
-      })
-    })
+        });
+      });
+    });
   }
 
   /**
@@ -457,25 +441,25 @@ class Scene extends Cue {
       this.prepareStartValues();
       this.state = 1;
     }
-    let fade = this.direction == SCENE_DIRECTIONS.IN ? this.fadeIn : this.fadeOut;
-    let fadeFactor = time < fade.durationMS ? fade.getValue(time) : 1;
-    this.fixtureValues.forEach(fixtureValue => {
-      Object.keys(fixtureValue.quickChannelsAccessors).forEach(channelType => {
-        let channels = fixtureValue.quickChannelsAccessors[channelType];
-        channels.forEach(channelValue => {
+    const fade = this.direction == SCENE_DIRECTIONS.IN ? this.fadeIn : this.fadeOut;
+    const fadeFactor = time < fade.durationMS ? fade.getValue(time) : 1;
+    this.fixtureValues.forEach((fixtureValue) => {
+      Object.keys(fixtureValue.quickChannelsAccessors).forEach((channelType) => {
+        const channels = fixtureValue.quickChannelsAccessors[channelType];
+        channels.forEach((channelValue) => {
           if (channelValue.active) {
-            let finalValue = this.direction == SCENE_DIRECTIONS.IN ? channelValue.value : 0;
-            let value = this.relative ?
-              Math.floor(channelValue.startValue + (finalValue - channelValue.startValue) * fadeFactor) :
-              Math.floor(finalValue * fadeFactor);
+            const finalValue = this.direction == SCENE_DIRECTIONS.IN ? channelValue.value : 0;
+            const value = this.relative
+              ? Math.floor(channelValue.startValue + (finalValue - channelValue.startValue) * fadeFactor)
+              : Math.floor(finalValue * fadeFactor);
             fixtureValue.fixture.setQuickAccessor(channelValue, value);
             this.DMXActivity += value;
           }
-        })
-      })
-    })
+        });
+      });
+    });
     if (time >= this.durationMS) {
-      //this.direction = !this.direction;
+      // this.direction = !this.direction;
       this.state = this.direction;
     }
   }
@@ -487,12 +471,11 @@ class Scene extends Cue {
    * @param {Object} instance handle to scene instance to be freed
    */
   static deleteInstance(instance) {
-    Object.keys(instance).forEach(prop => {
-      delete instance[prop]
-    })
+    Object.keys(instance).forEach((prop) => {
+      delete instance[prop];
+    });
     instance = null;
   }
-
 }
 
 export default Scene;

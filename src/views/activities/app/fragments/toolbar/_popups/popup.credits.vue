@@ -1,17 +1,25 @@
 <template>
-  <uk-popup @submit="close" :movable="false" backdrop :cancelable="false" @input="update()" v-model="state" :header="headerData">
+  <uk-popup
+    v-model="state"
+    :movable="false"
+    backdrop
+    :cancelable="false"
+    :header="headerData"
+    @submit="close"
+    @input="update()"
+  >
     <div class="body">
-      <div v-html="creditsTXT"/>
+      <div v-html="creditsTXT" />
     </div>
   </uk-popup>
 </template>
 
 <script>
-import Credits from "raw-loader!/CREDITS.html";
-import PopupMixin from "@/views/mixins/popup.mixin.js"
+import Credits from "/CREDITS.html?raw";
+import PopupMixin from "@/views/mixins/popup.mixin";
 
 export default {
-  name: "popupCredits",
+  name: "PopupCredits",
   mixins: [PopupMixin],
   compatConfig: {
     // or, for full vue 3 compat in this component:
@@ -36,13 +44,12 @@ export default {
 <style>
 </style>
 <style scoped>
-
 .body {
   padding: 10px;
   overflow: scroll;
   overflow-x: hidden;
   height: 400px;
-  max-width:500px;
+  max-width: 500px;
   width: auto;
   display: block;
 }
@@ -93,9 +100,9 @@ export default {
   color: var(--secondary-lighter);
   margin: 0;
 }
-:deep(a){
+:deep(a) {
   font-family: Roboto-Medium;
   font-size: 12px;
-  color: var(--accent-blue)
+  color: var(--accent-blue);
 }
 </style>

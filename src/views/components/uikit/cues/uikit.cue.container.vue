@@ -1,10 +1,22 @@
 <template>
-  <div class="uikit_cue_container" :class="{ selected, master }">
-    <div class="uikit_cue_container_header" :style="{ borderTopColor: master ? 'var(--secondary-light)' : group.color + (selected ? '' : 'C0') }">
-      <h4 style="text-overflow: ellipsis">{{ master ? "Master" : group.name }}</h4>
+  <div
+    class="uikit_cue_container"
+    :class="{ selected, master }"
+  >
+    <div
+      class="uikit_cue_container_header"
+      :style="{ borderTopColor: master ? 'var(--secondary-light)' : group.color + (selected ? '' : 'C0') }"
+    >
+      <h4 style="text-overflow: ellipsis">
+        {{ master ? "Master" : group.name }}
+      </h4>
     </div>
     <div class="uikit_cue_container_body">
-      <div ref="cue_list" class="uikit_cue_container_body_cue_list invisible_scrollbar" @scroll="propagateScroll">
+      <div
+        ref="cue_list"
+        class="uikit_cue_container_body_cue_list invisible_scrollbar"
+        @scroll="propagateScroll"
+      >
         <template v-for="(chase, chaseIndex) in poolsize">
           <div
             v-if="master"
@@ -13,18 +25,43 @@
             :style="{ top: `${chaseIndex * 26}px` }"
             :class="{ playing: masterPlayingRow == chaseIndex }"
           >
-            <p class="uikit_chase_title">row - {{ chaseIndex }}</p>
-            <div @click.stop="toggleRow(chaseIndex)" class="uikit_chase_btn">
-              <uk-icon class="uikit_chase_icon" :name="masterPlayingRow == chaseIndex ? 'stop' : 'play'" />
+            <p class="uikit_chase_title">
+              row - {{ chaseIndex }}
+            </p>
+            <div
+              class="uikit_chase_btn"
+              @click.stop="toggleRow(chaseIndex)"
+            >
+              <uk-icon
+                class="uikit_chase_icon"
+                :name="masterPlayingRow == chaseIndex ? 'stop' : 'play'"
+              />
             </div>
             <div class="uikit_chase_btn">
               <h4>{{ chaseIndex }}</h4>
             </div>
           </div>
-          <div v-else class="uikit_cue_container_empty_cue" @dblclick="addChase(chaseIndex)" :key="'A' + chaseIndex">
-            <div @click.stop="stopAll" class="uikit_cue_container_empty_cue_btn">
-              <uk-icon style="fill: var(--secondary-light) !important" v-if="master" class="uikit_chase_icon" name="play" />
-              <uk-icon v-else class="uikit_cue_container_empty_cue_btn_icon" name="stop" />
+          <div
+            v-else
+            :key="'A' + chaseIndex"
+            class="uikit_cue_container_empty_cue"
+            @dblclick="addChase(chaseIndex)"
+          >
+            <div
+              class="uikit_cue_container_empty_cue_btn"
+              @click.stop="stopAll"
+            >
+              <uk-icon
+                v-if="master"
+                style="fill: var(--secondary-light) !important"
+                class="uikit_chase_icon"
+                name="play"
+              />
+              <uk-icon
+                v-else
+                class="uikit_cue_container_empty_cue_btn_icon"
+                name="stop"
+              />
             </div>
           </div>
         </template>
@@ -32,24 +69,49 @@
           <div
             v-for="(chase, chaseIndex) in chases"
             :key="'B' + chaseIndex"
-            @mousedown="(e) => startDragChase(e, chase)"
-            @mouseup="(e) => stopDragChase(e, chase)"
-            @click.stop="selectChase(chase)"
             class="uikit_chase"
             :style="{ background: chase.color, top: `${chase.id * 26}px` }"
             :class="{ playing: chase.state, selected: selectedChaseId == chase.id }"
+            @mousedown="(e) => startDragChase(e, chase)"
+            @mouseup="(e) => stopDragChase(e, chase)"
+            @click.stop="selectChase(chase)"
           >
-            <div @mousedown.stop @mouseup.stop @click.stop="toggle(chase)" class="uikit_chase_btn">
-              <uk-icon class="uikit_chase_icon" :name="chase.state ? 'stop' : 'play'" />
+            <div
+              class="uikit_chase_btn"
+              @mousedown.stop
+              @mouseup.stop
+              @click.stop="toggle(chase)"
+            >
+              <uk-icon
+                class="uikit_chase_icon"
+                :name="chase.state ? 'stop' : 'play'"
+              />
             </div>
-            <div class="uikit_chase_loader" :style="{ width: chase.elapsedPerc * 100 + '%' }" />
-            <h4 class="uikit_chase_title">{{ chase.name }}</h4>
+            <div
+              class="uikit_chase_loader"
+              :style="{ width: chase.elapsedPerc * 100 + '%' }"
+            />
+            <h4 class="uikit_chase_title">
+              {{ chase.name }}
+            </h4>
           </div>
         </template>
       </div>
-      <uk-flex col :gap="8" class="uikit_cue_container_body_modifiers">
-        <uk-flex reverse col center-both class="uikit_vuemeter" :gap="4">
+      <uk-flex
+        col
+        :gap="8"
+        class="uikit_cue_container_body_modifiers"
+      >
+        <uk-flex
+          reverse
+          col
+          center-both
+          class="uikit_vuemeter"
+          :gap="4"
+        >
           <div
+            v-for="i in 5"
+            :key="i"
             class="uikit_vuemeter_dot"
             :style="{ backgroundColor: parseInt(binDisplay[i]) ? group.color || 'var(--secondary-lighter)' : 'var(--secondary-dark)' }"
             style="
@@ -60,20 +122,32 @@
               box-shadow: inset 1px 1px 2px var(--primary-dark);
               transition: all 0.1s;
             "
-            v-for="i in 5"
-            :key="i"
           />
         </uk-flex>
         <uk-knob
+          v-model="group.master"
           label=""
           :color="group.color || 'var(--secondary-lighter)'"
           :disabled="false"
-          v-model="group.master"
           :min="0"
           :max="255"
         />
-        <uk-button style="width: 85px" color="#2D6BA2" v-model="group.solo" @click="(e)=>{e.stopPropagation}" label="solo" toggleable />
-        <uk-button style="width: 85px" color="#A22D58" v-model="group.disabled" @click="(e)=>{e.stopPropagation}" label="disabled" toggleable />
+        <uk-button
+          v-model="group.solo"
+          style="width: 85px"
+          color="#2D6BA2"
+          label="solo"
+          toggleable
+          @click="(e)=>{e.stopPropagation}"
+        />
+        <uk-button
+          v-model="group.disabled"
+          style="width: 85px"
+          color="#A22D58"
+          label="disabled"
+          toggleable
+          @click="(e)=>{e.stopPropagation}"
+        />
       </uk-flex>
     </div>
   </div>
@@ -81,12 +155,11 @@
 
 <script>
 export default {
-  name: "ukCueContainer",
+  name: 'UkCueContainer',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,
   },
-  emits: ['scrolled', 'poolsize'],
   props: {
     /**
      * Handle to group instance
@@ -110,6 +183,7 @@ export default {
      */
     master: Boolean,
   },
+  emits: ['scrolled', 'poolsize'],
   data() {
     return {
       /**
@@ -128,6 +202,27 @@ export default {
       masterPlayingRow: this.$show.master.test,
     };
   },
+  watch: {
+    '$route.params.groupId': function () {
+      if (!this.master) {
+        this.selected = this.$route.params.groupId == this.group.id;
+        this.selectedChaseId = this.selected ? this.$route.params.chaseId : null;
+      }
+    },
+    '$route.params.chaseId': function () {
+      if (!this.master) {
+        this.selectedChaseId = this.selected ? this.$route.params.chaseId : null;
+      }
+    },
+    scrollTo() {
+      this.$refs.cue_list.scrollTo(0, this.scrollTo);
+    },
+    'group.DMXActivity': function (val) {
+      let n = Math.round(val).toString(2);
+      n = ('00000'.substring(n.length) + n).slice(0, 5);
+      this.binDisplay = n.split('').sort((a, b) => b - a);
+    },
+  },
   methods: {
     /**
      * Propagtes scroll value to parent element
@@ -135,13 +230,13 @@ export default {
      * @param {Object} e Scroll event
      */
     propagateScroll(e) {
-      let scrollValue = e.target.scrollTop;
+      const scrollValue = e.target.scrollTop;
       /**
        * Chase container scrolled event
        *
        * @property {Number} scrollValue the group's chase container scroll  Top value in px
        */
-      this.$emit("scrolled", scrollValue);
+      this.$emit('scrolled', scrollValue);
     },
     /**
      * Handles chase selection by re-routing user to selected chase
@@ -169,7 +264,7 @@ export default {
          *
          * @property {Number} poolsize the group's new pool size
          */
-        this.$emit("poolsize");
+        this.$emit('poolsize');
         this.$router.push(`/group/${this.group.id}/chase/${gridIndex}`);
       }
     },
@@ -189,7 +284,7 @@ export default {
     deleteChase(chase) {
       this.group.deleteChase(chase);
       this.emptyCues--;
-      this.$emit("poolsize");
+      this.$emit('poolsize');
     },
     /**
      * Toggles chase's state ON/OFF
@@ -228,20 +323,20 @@ export default {
      */
     startDragChase(e, chase) {
       this.selectChase(chase);
-      let chaseEl = e.currentTarget;
-      this.$utils.setCapture(chaseEl, "grab");
-      var viewportOffset = chaseEl.getBoundingClientRect();
-      let ctx = {
-        chase: chase,
-        chaseEl: chaseEl,
+      const chaseEl = e.currentTarget;
+      this.$utils.setCapture(chaseEl, 'grab');
+      const viewportOffset = chaseEl.getBoundingClientRect();
+      const ctx = {
+        chase,
+        chaseEl,
         startY: viewportOffset.top - chaseEl.offsetTop + chaseEl.clientHeight / 2,
       };
       const dragChase = (e) => {
         this.dragChase(e, ctx);
       };
-      window.addEventListener("mousemove", dragChase);
-      window.addEventListener("mouseup", () => {
-        window.removeEventListener("mousemove", dragChase);
+      window.addEventListener('mousemove', dragChase);
+      window.addEventListener('mouseup', () => {
+        window.removeEventListener('mousemove', dragChase);
       });
     },
     /**
@@ -252,7 +347,7 @@ export default {
     dragChase(e, ctx) {
       let tick = Math.min(Math.max(Math.floor((e.clientY - ctx.startY + 13) / 26), 0), this.poolsize - 1);
       tick = this.chases.find((chase) => chase.id === tick) ? ctx.chase.id : tick;
-      ctx.chaseEl.style.top = tick * 26 + "px";
+      ctx.chaseEl.style.top = `${tick * 26}px`;
       ctx.chase.id = tick;
       this.selectChase(ctx.chase);
     },
@@ -261,28 +356,7 @@ export default {
      *
      */
     stopDragChase() {
-      window.removeEventListener("mousemove", this.dragChase);
-    },
-  },
-  watch: {
-    "$route.params.groupId"() {
-      if (!this.master) {
-        this.selected = this.$route.params.groupId == this.group.id;
-        this.selectedChaseId = this.selected ? this.$route.params.chaseId : null;
-      }
-    },
-    "$route.params.chaseId"() {
-      if (!this.master) {
-        this.selectedChaseId = this.selected ? this.$route.params.chaseId : null;
-      }
-    },
-    scrollTo() {
-      this.$refs.cue_list.scrollTo(0, this.scrollTo);
-    },
-    "group.DMXActivity"(val) {
-      var n = Math.round(val).toString(2);
-      n = ("00000".substring(n.length) + n).slice(0, 5);
-      this.binDisplay = n.split("").sort((a, b) => b - a);
+      window.removeEventListener('mousemove', this.dragChase);
     },
   },
 };

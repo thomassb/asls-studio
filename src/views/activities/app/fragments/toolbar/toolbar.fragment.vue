@@ -1,19 +1,46 @@
 <template>
-  <uk-flex tabindex="0" center-v class="navigation_header">
+  <uk-flex
+    tabindex="0"
+    center-v
+    class="navigation_header"
+  >
     <uk-menu :menus="menus" />
     <uk-spacer />
-    <p>{{ this.saveState ? "" : "*" }} {{ project }}</p>
+    <p>{{ saveState ? "" : "*" }} {{ project }}</p>
     <uk-spacer />
-    <uk-flex center-both class="state_container" @click="playPauseShow()">
-      <div class="play_state_icon" :class="liveState.text" :style="{ animationDuration: 60000 / bpm + 'ms' }" />
+    <uk-flex
+      center-both
+      class="state_container"
+      @click="playPauseShow()"
+    >
+      <div
+        class="play_state_icon"
+        :class="liveState.text"
+        :style="{ animationDuration: 60000 / bpm + 'ms' }"
+      />
       <h3>{{ liveState.text }}</h3>
     </uk-flex>
-    <uk-flex @click="()=>{}" center-both class="bpm_container">
+    <uk-flex
+      center-both
+      class="bpm_container"
+      @click="()=>{}"
+    >
       <h3>BPM: </h3>
-      <uk-num-input style="margin-left:8px;width:60px;" @input="bpm=$show.bpm" v-model="$show.bpm"/>
-      <div class="colored_dot" :style="{ animationDuration: 60000 / bpm + 'ms' }" />
+      <uk-num-input
+        v-model="$show.bpm"
+        style="margin-left:8px;width:60px;"
+        @input="bpm=$show.bpm"
+      />
+      <div
+        class="colored_dot"
+        :style="{ animationDuration: 60000 / bpm + 'ms' }"
+      />
     </uk-flex>
-    <uk-flex center-both @click="bpm = $show.tapTempo()" class="tap_container">
+    <uk-flex
+      center-both
+      class="tap_container"
+      @click="bpm = $show.tapTempo()"
+    >
       <h3>TAP</h3>
     </uk-flex>
     <visualizer-popup v-model="visualizerPopupState" />
@@ -26,16 +53,16 @@
 </template>
 
 <script>
-import EventBus from "@/plugins/eventbus";
-import VisualizerPopup from "./_popups/popup.visualizer.vue";
-import LicensePopup from "./_popups/popup.license.vue";
-import CreditsPopup from "./_popups/popup.credits.vue";
-import NewshowPopup from "./_popups/popup.newshow.vue";
-import SaveasPopup from "./_popups/popup.saveas.vue";
-import ConnectionsPopup from "./_popups/popup.connections.vue";
+import EventBus from '@/plugins/eventbus';
+import VisualizerPopup from './_popups/popup.visualizer.vue';
+import LicensePopup from './_popups/popup.license.vue';
+import CreditsPopup from './_popups/popup.credits.vue';
+import NewshowPopup from './_popups/popup.newshow.vue';
+import SaveasPopup from './_popups/popup.saveas.vue';
+import ConnectionsPopup from './_popups/popup.connections.vue';
 
 export default {
-  name: "toolbarFragment",
+  name: 'ToolbarFragment',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,
@@ -101,37 +128,37 @@ export default {
        */
       menus: [
         {
-          name: "File",
+          name: 'File',
           selected: false,
           items: [
             {
-              name: "New Showfile",
-              icon: "newfile",
-              shortcut: "Shift+N",
+              name: 'New Showfile',
+              icon: 'newfile',
+              shortcut: 'Shift+N',
               callback: () => {
                 this.displayNewProjectPopup();
               },
             },
             {
-              name: "Load Showfile",
-              icon: "folder",
-              shortcut: "Ctrl+O",
+              name: 'Load Showfile',
+              icon: 'folder',
+              shortcut: 'Ctrl+O',
               callback: () => {
                 this.loadFile();
               },
             },
             {
-              name: "Save Showfile Locally",
-              shortcut: "Ctrl+S",
-              icon: "save",
+              name: 'Save Showfile Locally',
+              shortcut: 'Ctrl+S',
+              icon: 'save',
               callback: () => {
                 this.saveLocal();
               },
             },
             {
-              name: "Export Showfile",
-              shortcut: "Ctrl+Shift+S",
-              icon: "export",
+              name: 'Export Showfile',
+              shortcut: 'Ctrl+Shift+S',
+              icon: 'export',
               callback: () => {
                 this.saveasPopupState = true;
               },
@@ -139,21 +166,21 @@ export default {
           ],
         },
         {
-          name: "Edit",
+          name: 'Edit',
           selected: false,
           items: [
             {
-              name: "Undo",
-              shortcut: "Ctrl+Z",
-              icon: "undo",
+              name: 'Undo',
+              shortcut: 'Ctrl+Z',
+              icon: 'undo',
               callback: () => {
                 this.$show.undo();
               },
             },
             {
-              name: "Redo",
-              shortcut: "Ctrl+Y",
-              icon: "redo",
+              name: 'Redo',
+              shortcut: 'Ctrl+Y',
+              icon: 'redo',
               callback: () => {
                 this.$show.redo();
               },
@@ -161,21 +188,21 @@ export default {
           ],
         },
         {
-          name: "Preferences",
+          name: 'Preferences',
           selected: false,
           items: [
             {
-              name: "Visualizer",
-              shortcut: "Ctrl+Shift+V",
-              icon: "visualizer",
+              name: 'Visualizer',
+              shortcut: 'Ctrl+Shift+V',
+              icon: 'visualizer',
               callback: () => {
                 this.displayVisualizerPopup();
               },
             },
             {
-              name: "Outputs",
-              shortcut: "Ctrl+Shift+o",
-              icon: "zoom",
+              name: 'Outputs',
+              shortcut: 'Ctrl+Shift+o',
+              icon: 'zoom',
               callback: () => {
                 this.connectionsPopupState = true;
               },
@@ -183,41 +210,76 @@ export default {
           ],
         },
         {
-          name: "About",
+          name: 'About',
           selected: false,
           items: [
             {
-              name: "Manual",
-              icon: "help",
+              name: 'Manual',
+              icon: 'help',
               callback: () => {
-                window.open("https://studio.asls.timekadel.com/", "_blank");
+                window.open('https://studio.asls.timekadel.com/', '_blank');
               },
             },
             {
-              name: "License",
-              icon: "key",
+              name: 'License',
+              icon: 'key',
               callback: () => {
                 this.displayLicensePopup();
               },
             },
             {
-              name: "Credits",
-              icon: "opensource",
+              name: 'Credits',
+              icon: 'opensource',
               callback: () => {
                 this.displayCreditsPopup();
               },
             },
             {
-              name: "Contact",
-              icon: "contact",
+              name: 'Contact',
+              icon: 'contact',
               callback: () => {
-                window.open("https://github.com/timekadel", "_blank");
+                window.open('https://github.com/timekadel', '_blank');
               },
             },
           ],
         },
       ],
     };
+  },
+  computed: {
+    liveState() {
+      switch (this.state) {
+        case 0:
+          return {
+            text: 'stopped',
+            color: 'red',
+            icon: 'stop',
+          };
+        case 1:
+          return {
+            text: 'playing',
+            color: 'green',
+            icon: 'play',
+          };
+        case 2:
+          return {
+            text: 'paused',
+            color: 'yellow',
+            icon: 'pause',
+          };
+      }
+      return {};
+    },
+  },
+  mounted() {
+    this.$show.on('saveState', (state) => {
+      this.saveState = state;
+    });
+    EventBus.on('app_ready', () => {
+      this.project = this.$show.name;
+      window.removeEventListener('keydown', this.handleKeydownEvent);
+      window.addEventListener('keydown', this.handleKeydownEvent);
+    });
   },
   methods: {
     /**
@@ -245,17 +307,17 @@ export default {
      * @async
      */
     async loadFile() {
-      var el = document.createElement("input");
-      el.type = "file";
-      el.accept = ".qxw,.asls,.json,";
-      el.style.display = "none";
-      el.addEventListener("change", async () => {
+      const el = document.createElement('input');
+      el.type = 'file';
+      el.accept = '.qxw,.asls,.json,';
+      el.style.display = 'none';
+      el.addEventListener('change', async () => {
         if (el.files) {
           try {
-            await this.$router.push("/");
+            await this.$router.push('/');
             await this.$show.loadFromFile(el.files[0]);
             this.$router
-              .push("/universe/0")
+              .push('/universe/0')
               .then(() => {
                 this.$show.loading.state = false;
               })
@@ -263,9 +325,9 @@ export default {
                 this.$show.loading.state = false;
               });
             this.project = this.$show.name;
-            EventBus.emit("show_loaded");
+            EventBus.emit('show_loaded');
           } catch (err) {
-            EventBus.emit("app_error", err);
+            EventBus.emit('app_error', err);
           }
         }
         document.body.removeChild(el);
@@ -289,7 +351,7 @@ export default {
      */
     handleKeydownEvent(e) {
       switch (e.code) {
-        case "Space":
+        case 'Space':
           this.playPauseShow();
           break;
       }
@@ -335,41 +397,6 @@ export default {
       this.bpmPopupState = true;
     },
   },
-  computed: {
-    liveState() {
-      switch (this.state) {
-        case 0:
-          return {
-            text: "stopped",
-            color: "red",
-            icon: "stop",
-          };
-        case 1:
-          return {
-            text: "playing",
-            color: "green",
-            icon: "play",
-          };
-        case 2:
-          return {
-            text: "paused",
-            color: "yellow",
-            icon: "pause",
-          };
-      }
-      return {};
-    },
-  },
-  mounted() {
-    this.$show.on("saveState", (state) => {
-      this.saveState = state;
-    });
-    EventBus.on("app_ready", () => {
-      this.project = this.$show.name;
-      window.removeEventListener("keydown", this.handleKeydownEvent);
-      window.addEventListener("keydown", this.handleKeydownEvent);
-    });
-  },
 };
 </script>
 
@@ -404,7 +431,7 @@ export default {
   margin-left: 8px;
   animation-name: softblink;
   animation-iteration-count: infinite;
-  animation-direction: alternate; 
+  animation-direction: alternate;
 }
 .play_state_icon {
   height: 10px;
@@ -424,7 +451,7 @@ export default {
 .play_state_icon.paused {
   background-size: 10px;
   background: linear-gradient(90deg ,#d3a526 0px, #d3a526 3px, transparent 3px, transparent 7px,#d3a526 7px, #d3a526 10px);
-} 
+}
 .header_state_btn {
   margin-right: 8px;
   fill: var(--secondary-lighter);

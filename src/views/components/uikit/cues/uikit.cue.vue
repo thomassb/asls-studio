@@ -1,34 +1,45 @@
 <template>
   <div
     ref="chase"
-    @mousedown="startDrag"
-    @mouseup="stopDrag"
     class="uikit_chase"
     :style="{ background: chase.color, top: `${chase.id * 26}px` }"
     :class="{ playing: chase.state, selected: selected }"
+    @mousedown="startDrag"
+    @mouseup="stopDrag"
   >
-    <div @click.stop="toggle" class="uikit_chase_btn">
-      <uk-icon class="uikit_chase_icon" :name="chase.state ? 'stop' : 'play'" />
+    <div
+      class="uikit_chase_btn"
+      @click.stop="toggle"
+    >
+      <uk-icon
+        class="uikit_chase_icon"
+        :name="chase.state ? 'stop' : 'play'"
+      />
     </div>
-    <div class="uikit_chase_loader" :style="{ width: chase.elapsedPerc * 100 + '%' }" />
-    <h4 class="uikit_chase_title">{{ chase.name }}</h4>
+    <div
+      class="uikit_chase_loader"
+      :style="{ width: chase.elapsedPerc * 100 + '%' }"
+    />
+    <h4 class="uikit_chase_title">
+      {{ chase.name }}
+    </h4>
   </div>
 </template>
 
 <script>
 export default {
-  name: "ukChase",
+  name: 'UkChase',
   compatConfig: {
     // or, for full vue 3 compat in this component:
     MODE: 3,
   },
-  emits:['cue'],
   props: {
     /**
      * Handle to chase instance
      */
     value: Object,
   },
+  emits: ['cue'],
   data() {
     return {
       /**
@@ -46,6 +57,25 @@ export default {
       snapHeight: 26,
     };
   },
+  computed: {
+    /**
+     * Component's top offset
+     *
+     * @property offsetTop
+     * @returns {String} css-forted top-offset string
+     */
+    offsetTop() {
+      return `${this.chase.id * 26}px`;
+    },
+  },
+  watch: {
+    modelValue(value) {
+      this.chase = value;
+    },
+    '$route.params.chaseId': function () {
+      this.selected = this.$route.params.chaseId == this.chase.id;
+    },
+  },
   methods: {
     /**
      * Toggles chase's state ON/OFF
@@ -59,18 +89,18 @@ export default {
        *
        * @property {Object} chase handle to the chase instance
        */
-      this.$emit("cue", this.chase);
+      this.$emit('cue', this.chase);
     },
     /**
      * Prepare chase's element dragging.
      *
        */
     startDrag() {
-      document.body.style.cursor = "move";
-      var viewportOffset = this.$refs.chase.getBoundingClientRect();
+      document.body.style.cursor = 'move';
+      const viewportOffset = this.$refs.chase.getBoundingClientRect();
       this.startY = viewportOffset.top - this.$refs.chase.offsetTop + this.$refs.chase.clientHeight / 2;
-      window.addEventListener("mousemove", this.drag);
-      window.addEventListener("mouseup", this.stopDrag);
+      window.addEventListener('mousemove', this.drag);
+      window.addEventListener('mouseup', this.stopDrag);
     },
     /**
      * Re-compute chase's Y position accordingly to mouse move
@@ -78,8 +108,8 @@ export default {
        * @param {Object} e mousemove event
      */
     drag(e) {
-      let tick = Math.max(Math.floor((e.clientY - this.startY) / this.snapHeight), 0);
-      this.$refs.chase.style.top = tick * this.snapHeight + "px";
+      const tick = Math.max(Math.floor((e.clientY - this.startY) / this.snapHeight), 0);
+      this.$refs.chase.style.top = `${tick * this.snapHeight}px`;
       this.chase.id = tick;
     },
     /**
@@ -87,27 +117,8 @@ export default {
      *
        */
     stopDrag() {
-      document.body.style.cursor = "unset";
-      window.removeEventListener("mousemove", this.drag);
-    },
-  },
-  computed: {
-    /**
-     * Component's top offset
-     *
-     * @property offsetTop
-     * @returns {String} css-forted top-offset string
-     */
-    offsetTop() {
-      return this.chase.id * 26 + "px";
-    },
-  },
-  watch: {
-    modelValue(value) {
-      this.chase = value;
-    },
-    "$route.params.chaseId"() {
-      this.selected = this.$route.params.chaseId == this.chase.id;
+      document.body.style.cursor = 'unset';
+      window.removeEventListener('mousemove', this.drag);
     },
   },
 };
